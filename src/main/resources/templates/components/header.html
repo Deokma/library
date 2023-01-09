@@ -1,0 +1,75 @@
+<div th:fragment="header">
+    <nav class="navbar navbar-expand-lg bg-dark">
+        <div class="container">
+            <a class="navbar-brand text-light" href="/">
+                <img src="https://i1.wp.com/user-images.githubusercontent.com/17777237/54872862-e06a1e80-4dd3-11e9-9987-2de90444dc98.jpg"
+                     alt="" width="35" height="30" class="d-inline-block align-text-top">
+                Library</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText"
+                    aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarText">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href=""></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href=""></a>
+                    </li>
+                </ul>
+                <!--            <c:if test="${role == 'ADMIN' || role == 'USER'}">-->
+                <form class="d-flex" action="${pageContext.request.contextPath}/controller">
+                    <input type="hidden" name="userid" value="${user.getUserId()}">
+                    <input type="hidden" name="command" value="move_to_cart_page">
+                    <button class="btn btn-light btn-sm" aria-current="page" type="submit">
+                        <!--                        <h5>🛒<fmt:message key="navbar.common.cart"/></h5>-->sad
+                    </button>
+                </form>
+                <!--            </c:if>-->
+                <!--            <c:if test="${role == 'ADMIN'}">-->
+                <form class="d-flex" action="${pageContext.request.contextPath}/controller">
+                    <input type="hidden" name="command" value="move_to_orders_page">
+                    <button class="btn btn-light btn-sm" aria-current="page" type="submit">
+                        <!--                        <h5>🧾<fmt:message key="navbar.common.orders"/></h5>-->wqe
+                    </button>
+                </form>
+                <!--            </c:if>-->
+                <!--            <c:if test="${role != 'ADMIN' && role != 'USER'}">-->
+                <div>
+                    <form class="d-flex" action="${pageContext.request.contextPath}/controller" method="get">
+                        <input type="hidden" name="command" value="move_to_login_page">
+                        <button class="btn btn-primary ms-1 btn-light" type="submit">
+                            <!--                            <fmt:message key="navbar.common.sign.in"/>-->zxc
+                        </button>
+                    </form>
+                </div>
+                <div>
+                    <form class="d-flex" action="${pageContext.request.contextPath}/controller">
+                        <input type="hidden" name="command" value="move_to_signup_page">
+                        <button class="btn btn-primary ms-1 btn-light" type="submit">
+                            <!--                            <fmt:message key="login.button.sign.up"/>-->fdg
+                        </button>
+                    </form>
+                </div>
+                <!--            </c:if>-->
+                <!--            <c:if test="${role == 'ADMIN' || role == 'USER'}">-->
+                <div class="col d-flex justify-content-end align-items-end">
+                    <form class="d-flex" action="${pageContext.request.contextPath}/controller" method="get">
+                        <input type="hidden" name="command" value="move_to_account_page">
+                        <button class="btn btn-primary d-flex btn-light" type="submit">
+                            <!--                            👤<fmt:message key="navbar.common.profile"/>-->qw
+                        </button>
+                    </form>
+                    <form class="d-flex" action="${pageContext.request.contextPath}/controller" method="get">
+                        <input type="hidden" name="command" value="sign_out">
+                        <button class="btn btn-primary d-flex btn-light" type="submit">
+                            <!--                            🚪<fmt:message key="navbar.common.logout"/>-->asd
+                        </button>
+                    </form>
+                </div>
+                <!--            </c:if>-->
+            </div>
+        </div>
+    </nav>
+</div>
