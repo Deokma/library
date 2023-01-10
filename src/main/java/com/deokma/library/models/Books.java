@@ -72,4 +72,21 @@ public class Books {
     public Long getBook_id() {
         return book_id;
     }
+
+    public Books() {
+    }
+
+    public Books(String name, String author, String cover, String view_link, String download_link) {
+        this.name = name;
+        this.author = author;
+
+        this.view_link = view_link;
+        this.download_link = download_link;
+        if (this.cover == null) {
+            this.cover = "https://clck.ru/33EEUR";
+        } else {
+            this.cover = cover;
+        }
+
+    }
 }
