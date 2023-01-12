@@ -40,12 +40,6 @@
                             </div>
                             <h5 class="px-2 text-light fw-bold">Описание:</h5>
                             <p class="text-light px-2" th:text="${el.description}"/>
-                            <div class="position-absolute bottom-0 end-0 px-4 p-4">
-                                <form class="d-flex justify-content-end"  th:action="'/books/' + ${el.book_id} + '/remove'"
-                                      method="post">
-                                    <button class="btn btn-danger" type="submit">Удалить</button>
-                                </form>
-                            </div>
                         </div>
                     </div>
                 </div>
