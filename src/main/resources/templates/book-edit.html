@@ -8,11 +8,45 @@
     <title th:text="${title}"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
 </head>
-<body class="bg-dark">
+<body class="bg-secondary">
 <header th:insert="components/header :: header"></header>
 <div class="container mt-5 mb-5">
-    <h1>Добавление книги</h1>
     <div th:each="el : ${book}">
+        <div>
+            <div class="row row-cols-1 row-cols-md-2 g-1 bg-dark">
+                <div class="col-lg-4">
+                    <img th:src="${el.cover}" width="300" height="600"
+                         class="card-img-top" alt="...">
+                </div>
+                <div class=" col-lg-8 container position-relative">
+                    <h4 th:text="${el.name}" class="text-start px-4 p-1 text-light fw-bold"></h4>
+                    <h6 th:text="'Автор: ' + ${el.author}" class="text-start px-4 text-light fw-norm"></h6>
+                    <!--                            <form action="" class="bg-white">-->
+                    <!--                                <a class="btn btn-light ms-3" th:href="${el.book_id} + '.pdf'">Читать</a>-->
+                    <!--                            </form>-->
+                    <div class="p-2 px-1">
+                        <div class="p-1">
+                            <a class="btn btn-light ms-3" th:href="${el.view_link}">Читать</a>
+                            <a class="btn btn-light ms-3" th:href="${el.download_link}">Скачать</a>
+                        </div>
+                        <div class="p-1">
+                        </div>
+                        <div class="p-1">
+                            <a th:href="'/books/' + ${el.book_id} + '/edit'"
+                               class="btn btn-warning ms-3">Редактировать</a>
+                        </div>
+                    </div>
+                    <h5 class="px-2 text-light fw-bold">Описание:</h5>
+                    <p class="text-light px-2" th:text="${el.description}"/>
+                    <div class="position-absolute bottom-0 end-0 px-4 p-4">
+                        <form class="d-flex justify-content-end"  th:action="'/books/' + ${el.book_id} + '/remove'"
+                              method="post">
+                            <button class="btn btn-danger" type="submit">Удалить</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
         <form method="post">
             <input type="text" th:value="${el.name}" name="name" placeholder="Введите название" class="form-control"><br>
             <input type="text" th:value="${el.author}" name="author" placeholder="Введите автора" class="form-control"><br>
@@ -20,6 +54,7 @@
             <input type="text" th:value="${el.view_link}" name="view_link" placeholder="Введите ссылку для чтения" class="form-control"><br>
             <input type="text" th:value="${el.download_link}" name="download_link" placeholder="Введите ссылку для скачивания"
                    class="form-control"><br>
+            <textarea th:text="${el.description}" name="description" placeholder="Введите описание" class="form-control"/><br>
             <button type="submit" class="btn btn-success">Обновить</button>
         </form>
     </div>

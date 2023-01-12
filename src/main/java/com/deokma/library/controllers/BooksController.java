@@ -34,8 +34,9 @@ public class BooksController {
     @RequestMapping(value = "/books/add", method = RequestMethod.POST)
     public String booksAddPost(@RequestParam String name, @RequestParam String author,
                                @RequestParam String cover, @RequestParam String view_link,
-                               @RequestParam String download_link, Model model) {
-        Books books = new Books(name, author, cover, view_link, download_link);
+                               @RequestParam String download_link,
+                               @RequestParam String description, Model model) {
+        Books books = new Books(name, author, cover, view_link, download_link,description);
         booksRepository.save(books);
         return "redirect:/books";
     }

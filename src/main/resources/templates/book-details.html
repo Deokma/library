@@ -12,27 +12,41 @@
 <header th:insert="components/header :: header"></header>
 <div class="container">
     <div class="secondary alert-info mt-2">
-        <div class="row row-cols-1 row-cols-md-5 g-4">
+        <div class="">
             <div th:each="el : ${book}">
-                <div class="col ">
-                    <div class="card h-100">
-                        <a th:href="'/books/' + ${el.book_id}">
-                            <img th:src="${el.cover}" width="500" height="300" th:href="'/books/' + ${el.book_id}"
+                <div>
+                    <div class="row row-cols-1 row-cols-md-2 g-1 bg-dark">
+                        <div class="col-lg-4">
+                            <img th:src="${el.cover}" width="300" height="600"
                                  class="card-img-top" alt="...">
-                        </a>
-                        <div class="card-footer">
-
-                            <a th:href="'/books/' + ${el.book_id}" class="text-decoration-none">
-                                <h5 th:text="${el.name}" class="text-center text-dark"></h5>
-                            </a>
-                            <h6 th:text="${el.author}" class="text-muted"></h6>
-                            <a class="btn btn-warning ms-3" th:href="${el.view_link}">Читать</a>
-                            <a class="btn btn-dark ms-3" th:href="${el.download_link}">Скачать</a>
                         </div>
-                        <a th:href="'/books/' + ${el.book_id} + '/edit'" class="btn btn-warning ms-3">Редактировать</a>
-                        <form th:action="'/books/' + ${el.book_id} + '/remove'" method="post">
-                            <button class="btn btn-danger" type="submit">Удалить</button>
-                        </form>
+                        <div class=" col-lg-8 container position-relative">
+                            <h4 th:text="${el.name}" class="text-start px-4 p-1 text-light fw-bold"></h4>
+                            <h6 th:text="'Автор: ' + ${el.author}" class="text-start px-4 text-light fw-norm"></h6>
+                            <!--                            <form action="" class="bg-white">-->
+                            <!--                                <a class="btn btn-light ms-3" th:href="${el.book_id} + '.pdf'">Читать</a>-->
+                            <!--                            </form>-->
+                            <div class="p-2 px-1">
+                                <div class="p-1">
+                                    <a class="btn btn-light ms-3" th:href="${el.view_link}">Читать</a>
+                                    <a class="btn btn-light ms-3" th:href="${el.download_link}">Скачать</a>
+                                </div>
+                                <div class="p-1">
+                                </div>
+                                <div class="p-1">
+                                    <a th:href="'/books/' + ${el.book_id} + '/edit'"
+                                       class="btn btn-warning ms-3">Редактировать</a>
+                                </div>
+                            </div>
+                            <h5 class="px-2 text-light fw-bold">Описание:</h5>
+                            <p class="text-light px-2" th:text="${el.description}"/>
+                            <div class="position-absolute bottom-0 end-0 px-4 p-4">
+                                <form class="d-flex justify-content-end"  th:action="'/books/' + ${el.book_id} + '/remove'"
+                                      method="post">
+                                    <button class="btn btn-danger" type="submit">Удалить</button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -40,6 +54,5 @@
     </div>
 </div>
 </div>
-<footer th:insert="components/footer :: footer"></footer>
 </body>
 </html>

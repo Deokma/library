@@ -15,7 +15,7 @@ public class Books {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long book_id;
     private int genre_id;
-    private String cover, view_link, download_link, author, name;
+    private String cover, view_link, download_link, author, name, description;
 
     public int getGenre_id() {
         return genre_id;
@@ -73,20 +73,23 @@ public class Books {
         return book_id;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public Books() {
     }
 
-    public Books(String name, String author, String cover, String view_link, String download_link) {
+    public Books(String name, String author, String cover, String view_link, String download_link, String description) {
         this.name = name;
         this.author = author;
-
+        this.description = description;
         this.view_link = view_link;
         this.download_link = download_link;
-        if (this.cover == null) {
-            this.cover = "https://clck.ru/33EEUR";
-        } else {
-            this.cover = cover;
-        }
-
+        this.cover = cover;
     }
 }

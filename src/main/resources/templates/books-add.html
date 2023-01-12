@@ -12,12 +12,14 @@
 <header th:insert="components/header :: header"></header>
 <div class="container mt-5 mb-5">
 <h1>Добавление книги</h1>
-<form action="/books/add" method="post">
+<form action="/books/add" method="post" enctype="multipart/form-data">
     <input type="text" name="name" placeholder="Введите название" class="form-control"><br>
     <input type="text" name="author" placeholder="Введите автора" class="form-control"><br>
     <input type="text" name="cover" th:value="'https://clck.ru/33EEUR'" placeholder="Введите ссылку обложки" class="form-control"><br>
     <input type="text" name="view_link" placeholder="Введите ссылку для чтения" class="form-control"><br>
     <input type="text" name="download_link" placeholder="Введите ссылку для скачивания" class="form-control"><br>
+    <input type="file" name="book">
+    <textarea type="text" name="description" placeholder="Введите описание" class="form-control"></textarea><br>
     <button type="submit" class="btn btn-success">Добавить книгу</button>
 </form>
 </div>
