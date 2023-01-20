@@ -1,0 +1,26 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:og="http://opengraphprotocol.org/schema/" dir="ltr" lang="ru-RU"
+      prefix="og: http://ogp.me/ns# video: http://ogp.me/ns/video# ya: http://webmaster.yandex.ru/vocabularies/">
+<head profile="http://gmpg.org/xfn/11">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>404 - Страница не найдена</title>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+</head>
+<body>
+<header th:insert="~{components/header :: header}"></header>
+<div class="d-flex align-items-center justify-content-center vh-100 bg-secondary">
+    <div class="text-center">
+        <h1 class="display-1 fw-bold text-light">404</h1>
+        <p class="fs-3 text-light"><span class="text-danger">Opps!</span> Page not found.</p>
+        <p class="lead text-light">
+            The page you’re looking for doesn’t exist.
+        </p>
+        <a href="/" class="btn btn-primary">Go Home</a>
+    </div>
+</div>
+</body>
+</html>

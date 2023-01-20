@@ -5,24 +5,62 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title th:text="${title}"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <title>Add book</title>
 </head>
-<body class="bg-dark">
-<header th:insert="components/header :: header"></header>
-<div class="container mt-5 mb-5">
-<h1>Добавление книги</h1>
-<form action="/books/add" method="post" enctype="multipart/form-data">
-    <input type="text" name="name" placeholder="Введите название" class="form-control"><br>
-    <input type="text" name="author" placeholder="Введите автора" class="form-control"><br>
-    <input type="text" name="cover" th:value="'https://clck.ru/33EEUR'" placeholder="Введите ссылку обложки" class="form-control"><br>
-    <input type="text" name="view_link" placeholder="Введите ссылку для чтения" class="form-control"><br>
-    <input type="text" name="download_link" placeholder="Введите ссылку для скачивания" class="form-control"><br>
-    <input type="file" name="book">
-    <textarea type="text" name="description" placeholder="Введите описание" class="form-control"></textarea><br>
-    <button type="submit" class="btn btn-success">Добавить книгу</button>
-</form>
+<body class="bg-secondary">
+<header th:insert="~{components/header :: header}"></header>
+<div class="container mt-2 bg-dark">
+    <h1 class="text-light">Добавление книги:</h1>
+    <div>
+        <div class="row row-cols-1 row-cols-md-2 g-1 bg-dark">
+            <div class="col-lg-4">
+                <img th:src="'https://sun9-49.userapi.com/tfNPDe06B8H4gSHaO1PkXEhTUee8bNkv0_VhHw/2mSp0XPvjAk.jpg'" width="300" height="600"
+                     class="card-img-top" alt="...">
+            </div>
+            <div class=" col-lg-8 container position-relative">
+                <form action="/books/add" method="post" enctype="multipart/form-data">
+                    <div class="col-md-8"><br>
+                        <h5 class="text-light">Название:</h5>
+                        <input type="text" name="name" placeholder="Введите название" class="form-control"><br>
+                    </div>
+                    <div class="input-group-sm col-md-4 col-md-offset-3">
+                        <h5 class="text-light">Автор:</h5>
+                        <input type="text" name="author" placeholder="Введите автора" class="form-control"><br>
+                    </div>
+                    <br>
+                    <div class="">
+                        <h5 class="text-light">Ссылка для чтение:</h5>
+                        <input type="text" name="view_link" placeholder="Введите ссылку для чтения"
+                               class="form-control"><br>
+                    </div>
+                    <div>
+                        <h5 class="text-light">Ссылка для скачивания:</h5>
+                        <input type="text" name="download_link" placeholder="Введите ссылку для скачивания"
+                               class="form-control"><br>
+                    </div>
+                    <br>
+                    <h5 class="px-2 text-light fw-bold">Описание:</h5>
+                    <textarea type="text" name="description" placeholder="Введите описание"
+                              class="form-control"></textarea><br>
+                    <h5 class="text-light">Ссылка на обложку:</h5>
+                    <input type="text" name="cover" th:value="'https://clck.ru/33EEUR'"
+                           placeholder="Введите ссылку обложки"
+                           class="form-control"><br>
+                    <div class="container text-center">
+                        <div class="row justify-content-center">
+                            <div class="col-4">
+                                <form method="post">
+                                    <button type="submit" class="btn btn-success">Добавить книгу</button>
+                                </form>
+                            </div>
+                        </div>
+                        <br>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
-<footer th:insert="components/footer :: footer"></footer>
+<footer th:insert="~{components/footer :: footer}"></footer>
 </body>
 </html>

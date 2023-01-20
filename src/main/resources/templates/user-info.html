@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${user.username}"></title>
+</head>
+<body class="bg-secondary">
+<header th:insert="~{components/header :: header}"></header>
+<div class="container bg-dark text-light mt-2">
+    <div class="row g-1 px-4 p-2 border-bottom border-light">
+        <div class="col-2 d-flex justify-content-center align-items-center">
+            <div class="">
+                <img th:src="${user.avatar}" width="150" height="150" alt="">
+                <br><br>
+                <form action="">
+                    <input type="submit" value="Обновить Аватарку">
+                </form>
+            </div>
+        </div>
+        <div class="col-8">
+            <h3 th:text="${user.username}" class="text-start"></h3>
+            <h4 th:text="'Роль: ' + ${user.roles}"></h4>
+        </div>
+    </div>
+    <h4>Ваши книги:</h4>
+    <div class="container">
+        <div class="secondary alert-info mt-2">
+            <div class="row row-cols-1 row-cols-md-5 g-4">
+                <div th:each="el : ${books}">
+                    <div class="col ">
+                        <div class="card h-100">
+                            <a th:href="'/books/' + ${el.book_id}">
+                                <img th:src="${el.cover}" width="500" height="300" th:href="'/books/' + ${el.book_id}"
+                                     class="card-img-top" alt="...">
+                            </a>
+                            <div class="card-footer" style="max-height: 50px;">
+                                <a th:href="'/books/' + ${el.book_id}" class="text-decoration-none">
+                                    <h6 th:text="${el.name}" class="text-center text-dark"></h6>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+</div>
+<footer th:insert="~{components/footer :: footer}"></footer>
+</body>
+</html>
