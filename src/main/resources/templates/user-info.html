@@ -13,9 +13,6 @@
             <div class="">
                 <img th:src="${user.avatar}" width="150" height="150" alt="">
                 <br><br>
-                <form action="">
-                    <input type="submit" value="Обновить Аватарку">
-                </form>
             </div>
         </div>
         <div class="col-8">
@@ -23,7 +20,7 @@
             <h4 th:text="'Роль: ' + ${user.roles}"></h4>
         </div>
     </div>
-    <h4>Ваши книги:</h4>
+    <h4 class="px-3">Кники пользователя:</h4>
     <div class="container">
         <div class="secondary alert-info mt-2">
             <div class="row row-cols-1 row-cols-md-5 g-4">

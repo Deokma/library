@@ -20,12 +20,12 @@ public class BooksController {
     @Autowired
     private BooksRepository booksRepository;
 
-    @RequestMapping(value = "/books", method = RequestMethod.GET)
-    public String booksMain(Model model) {
-        Iterable<Books> books = booksRepository.findAll();
-        model.addAttribute("books", books);
-        return "books-main";
-    }
+//    @RequestMapping(value = "/books", method = RequestMethod.GET)
+//    public String booksMain(Model model) {
+//        Iterable<Books> books = booksRepository.findAll();
+//        model.addAttribute("books", books);
+//        return "books-main";
+//    }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping(value = "/books/add", method = RequestMethod.GET)
@@ -41,7 +41,8 @@ public class BooksController {
                                @RequestParam String description, Model model) {
         Books books = new Books(name, author, cover, view_link, download_link, description);
         booksRepository.save(books);
-        return "redirect:/books";
+//        return "redirect:/books";
+        return "redirect:/";
     }
 
     @RequestMapping(value = "/books/{book_id}", method = RequestMethod.GET)
@@ -82,7 +83,8 @@ public class BooksController {
         books.setView_link(view_link);
         books.setDownload_link(download_link);
         booksRepository.save(books);
-        return "redirect:/books";
+//        return "redirect:/books";
+        return "redirect:/";
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -90,6 +92,7 @@ public class BooksController {
     public String bookRemovePost(@PathVariable(value = "book_id") long book_id, Model model) {
         Books books = booksRepository.findById(book_id).orElseThrow();
         booksRepository.delete(books);
-        return "redirect:/books";
+//        return "redirect:/books";
+        return "redirect:/";
     }
 }

@@ -43,13 +43,13 @@
                     <textarea type="text" name="description" placeholder="Введите описание"
                               class="form-control"></textarea><br>
                     <h5 class="text-light">Ссылка на обложку:</h5>
-                    <input type="text" name="cover" th:value="'https://clck.ru/33EEUR'"
+                    <input type="text" name="cover" th:value="'https://clck.ru/33LDY5'"
                            placeholder="Введите ссылку обложки"
                            class="form-control"><br>
                     <div class="container text-center">
                         <div class="row justify-content-center">
                             <div class="col-4">
-                                <form method="post">
+                                <form method="post" th:action="'/books/add'">
                                     <button type="submit" class="btn btn-success">Добавить книгу</button>
                                 </form>
                             </div>

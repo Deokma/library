@@ -1,11 +1,11 @@
 <!doctype html>
-<html th:each="el : ${book}" xmlns:th="http://www.thymeleaf.org">
+<html th:each="ed : ${book}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title th:text="${el.name}"></title>
+    <title th:text="${ed.name}"></title>
 </head>
 <body class="bg-secondary">
 <header th:insert="~{components/header :: header}"></header>
@@ -14,19 +14,19 @@
         <div>
             <div class="row row-cols-1 row-cols-md-2 g-1 bg-dark">
                 <div class="col-lg-4">
-                    <img th:src="${el.cover}" width="300" height="600"
+                    <img th:src="${ed.cover}" width="300" height="600"
                          class="card-img-top" alt="...">
                 </div>
                 <div class=" col-lg-8 container position-relative">
                     <form method="post">
                         <div class="col-md-8"><br>
                             <h5 class="text-light">Название:</h5>
-                            <input type="text" th:value="${el.name}" name="name" placeholder="Введите название"
+                            <input type="text" th:value="${ed.name}" name="name" placeholder="Введите название"
                                    class="form-control text-start px-6 top-1 text-dark fw-bold mb-2">
                         </div>
                         <div class="input-group-sm col-md-4 col-md-offset-3">
                             <h5 class="text-light">Автор:</h5>
-                            <input type="text" th:value="${el.author}" name="author"
+                            <input type="text" th:value="${ed.author}" name="author"
                                    aria-describedby="inputGroup-sizing-sm"
                                    placeholder="Введите автора"
                                    class="form-control">
@@ -34,33 +34,33 @@
                         <br>
                         <div class="">
                             <h5 class="text-light">Ссылка для чтение:</h5>
-                            <input type="text" th:value="${el.view_link}" name="view_link"
+                            <input type="text" th:value="${ed.view_link}" name="view_link"
                                    placeholder="Введите ссылку для чтения"
                                    class="form-control">
                         </div>
                         <div>
                             <h5 class="text-light">Ссылка для скачивания:</h5>
-                            <input type="text" th:value="${el.download_link}" name="download_link"
+                            <input type="text" th:value="${ed.download_link}" name="download_link"
                                    placeholder="Введите ссылку для скачивания"
                                    class="form-control">
                         </div>
                         <br>
                         <h5 class="px-2 text-light fw-bold">Описание:</h5>
-                        <textarea th:text="${el.description}" name="description" style="resize: none;height: 200px"
+                        <textarea th:text="${ed.description}" name="description" style="resize: none;height: 200px"
                                   placeholder="Введите описание"
                                   class="form-control"/>
                         <h5 class="text-light">Ссылка на обложку:</h5>
-                        <input type="text" th:value="${el.cover}" name="cover" placeholder="Введите ссылку обложки"
+                        <input type="text" th:value="${ed.cover}" name="cover" placeholder="Введите ссылку обложки"
                                class="form-control"><br>
                         <div class="container text-center">
                             <div class="row justify-content-center">
                                 <div class="col-4">
-                                    <form method="post">
+                                    <form method="post" th:action="'/books/' + ${ed.book_id} + '/edit'">
                                         <button type="submit" class="btn btn-success btn-lg">Обновить</button>
                                     </form>
                                 </div>
                                 <div class="col-4">
-                                    <form method="post" th:action="'/books/' + ${el.book_id} + '/remove'">
+                                    <form method="post" th:action="'/books/' + ${ed.book_id} + '/remove'">
                                         <button type="submit" class="btn btn-danger btn-lg">Удалить</button>
                                     </form>
                                 </div>
