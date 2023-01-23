@@ -19,7 +19,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "user_id")
     private Long id;
     @Column(name = "username", unique = true)
     private String username;
@@ -30,7 +30,7 @@ public class User implements UserDetails {
     private String avatar;
     @Column(name = "password", length = 1000)
     private String password;
-    private String df;
+    //private String df;
     @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"))

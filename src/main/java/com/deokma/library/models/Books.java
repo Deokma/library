@@ -12,7 +12,7 @@ public class Books {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long book_id;
-    private int genre_id;
+    //private int genre_id;
     private String cover, view_link, download_link, author, name, description;
     @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
     @JoinColumn

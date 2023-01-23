@@ -5,10 +5,33 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title th:text="${title}"/>
+    <title>Books</title>
 </head>
-<body class="bg-dark">
+<body class="bg-secondary">
 <header th:insert="~{components/header :: header}"></header>
+<div class="container">
+    <div class="secondary alert-info mt-2">
+        <div class="row row-cols-1 row-cols-md-5 g-4">
+            <div th:each="el : ${books}">
+                <div class="col ">
+                    <div class="card h-100">
+                        <a th:href="'/books/' + ${el.book_id}">
+                            <img th:src="${el.cover}" width="500" height="300" th:href="'/books/' + ${el.book_id}"
+                                 class="card-img-top" alt="...">
+                        </a>
+                        <div class="card-footer" style="max-height: 120px;">
+                            <a th:href="'/books/' + ${el.book_id}" class="text-decoration-none">
+                                <h5 th:text="${el.name}" class="text-center text-dark"></h5>
+                            </a>
+                            <h6 th:text="${el.author}" class="text-muted"></h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
 <footer th:insert="~{components/footer :: footer}"></footer>
 </body>
 </html>

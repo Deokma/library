@@ -21,9 +21,9 @@
                     </li>
                 </ul>
                 <form class="d-flex">
-                    <button class="btn btn-dark btn-sm text-light " aria-current="page" type="submit">
-                        <a href="/books" class="text-decoration-none text-reset fw-bold">Книги</a>
-                    </button>
+<!--                    <button class="btn btn-dark btn-sm text-light " aria-current="page" type="submit">-->
+<!--                        <a href="/books" class="text-decoration-none text-reset fw-bold">Книги</a>-->
+<!--                    </button>-->
                     <div th:if="${usersession.isAdmin()}">
                         <button class="btn btn-dark btn-sm text-light " aria-current="page" type="submit">
                             <a href="/books/add" class="text-decoration-none text-reset fw-bold">Добавить книгу</a>
@@ -35,25 +35,34 @@
                 </form>
                 <div class="col d-flex justify-content-end align-items-end">
                     <div th:if="${usersession.username}">
-                        <form action="">
-                            <button class="btn btn-online-primary btn-sm btn-light float-right px-3" type="submit">
-                                <a href="account" class="text-decoration-none text-reset">Аккаунт</a>
-                            </button>
-                            <form class="d-flex " action="/logout" method="post">
-                                <input type="hidden" name="_csrf" th:value="${_csrf.token}">
-                                <input type="submit" class="btn btn-online-primary btn-sm btn-light float-right px-3"
-                                       value="Выйти">
-                            </form>
-                        </form>
+                        <div class="row">
+                            <div class="col">
+                                <button class="btn btn-online-primary btn-sm btn-light float-right px-3" type="submit">
+                                    <a href="account" class="text-decoration-none text-reset">Аккаунт</a>
+                                </button>
+                            </div>
+                            <div class="col">
+                                <form class="d-flex " action="/logout" method="post">
+                                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                                    <input type="submit"
+                                           class="btn btn-online-primary btn-sm btn-light float-right px-3"
+                                           value="Выйти">
+                                </form>
+                            </div>
+                        </div>
                     </div>
                     <div th:unless="${usersession.username}">
-                        <div class="">
-                            <button class="btn btn-online-primary btn-sm btn-light float-right px-3" type="submit">
-                                <a href="login" class="text-decoration-none text-reset">Login</a>
-                            </button>
-                            <button class="btn btn-online-primary btn-sm btn-light float-right px-3" type="submit">
-                                <a href="registration" class="text-decoration-none text-reset">Register</a>
-                            </button>
+                        <div class="row">
+                            <div class="col">
+                                <button class="btn btn-online-primary btn-sm btn-light float-right px-3" type="submit">
+                                    <a href="login" class="text-decoration-none text-reset">Login</a>
+                                </button>
+                            </div>
+                            <div class="col">
+                                <button class="btn btn-online-primary btn-sm btn-light float-right px-3" type="submit">
+                                    <a href="registration" class="text-decoration-none text-reset">Register</a>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
