@@ -20,6 +20,7 @@ public class EverewhereController {
     private final UserService userService;
     @ModelAttribute
     public void addModelInformation(Model model, Principal principal) {
-        model.addAttribute("usersession", userService.getUserByPrincipal(principal));
+        User user_session = userService.getUserByPrincipal(principal);
+        model.addAttribute("usersession", user_session);
     }
 }

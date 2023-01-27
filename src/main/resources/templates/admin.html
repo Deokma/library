@@ -27,11 +27,11 @@
             <th>
                 <form th:if="${u.active}" th:action="'/admin/user/ban/' + ${u.id}" method="post">
                     <input type="hidden" name="_csrf" th:value="${_csrf.token}">
-                    <input type="submit" value="Ban" class="btn btn-primary btn-danger"></input>
+                    <input type="submit" value="Ban" class="btn btn-primary btn-danger">
                 </form>
                 <form th:unless="${u.active}" th:action="'/admin/user/unban/' + ${u.id}" method="post">
                     <input type="hidden" name="_csrf" th:value="${_csrf.token}">
-                    <input type="submit" value="Unban" class="btn btn-primary btn-success"></input>
+                    <input type="submit" value="Unban" class="btn btn-primary btn-success">
                 </form>
             </th>
         </tr>

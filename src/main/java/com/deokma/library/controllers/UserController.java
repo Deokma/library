@@ -9,11 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,17 +27,20 @@ public class UserController {
     @Autowired
     private BooksRepository booksRepository;
 
-    @RequestMapping(value = "/registration", method = RequestMethod.GET)
+    //@RequestMapping(value = "/registration", method = RequestMethod.GET)
+    @GetMapping("/registration")
     public String registrationPage() {
         return "registration";
     }
 
-    @RequestMapping(value = "/login", method = RequestMethod.GET)
+    //@RequestMapping(value = "/login", method = RequestMethod.GET)
+    @GetMapping("/login")
     public String loginPage() {
         return "login";
     }
 
-    @RequestMapping(value = "/registration", method = RequestMethod.POST)
+    //@RequestMapping(value = "/registration", method = RequestMethod.POST)
+    @PostMapping("/registration")
     public String createUser(User user, Model model) {
         if (!userService.createUser(user)) {
             model.addAttribute("errorMessage", "Пользователь с username " + user.getUsername() + " уже существует");
@@ -49,19 +50,29 @@ public class UserController {
         return "redirect:/login";
     }
 
-    @RequestMapping(value = "/account", method = RequestMethod.GET)
-    public String accountPage(Model model) {
+    //@RequestMapping(value = "/account", method = RequestMethod.GET)
+    @GetMapping("/account")
+    public String accountPage(Model model, Principal principal) {
         // model.addAttribute("user", user);
-        Iterable<Books> books = booksRepository.findAll();
-        model.addAttribute("books", books);
+        //Iterable<Books> books = booksRepository.findAll();
+        User user = userService.getUserByPrincipal(principal);
+
+        //Books user_books = booksRepository.findById(user.getBooks_list());
+        model.addAttribute("book_list",user.getBooks_list());
+        //model.addAttribute("books", books);
+       // model.addAttribute("userok");
+
         return "account";
     }
 
-    @RequestMapping(value = "/user/{user}", method = RequestMethod.GET)
+    //@RequestMapping(value = "/user/{user}", method = RequestMethod.GET)
+    @GetMapping("/user/{user}")
     public String userInfo(@PathVariable("user") User user, Model model) {
         // model.addAttribute("user", user);
-        Iterable<Books> books = booksRepository.findAll();
-        model.addAttribute("books", books);
+        //Iterable<Books> books = booksRepository.findAll();
+        Optional<User> user1 = userRepository.findById(user.getId());
+        model.addAttribute("book_list",user.getBooks_list());
+        //model.addAttribute("books", books);
         return "user-info";
     }
 

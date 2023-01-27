@@ -1,7 +1,11 @@
 package com.deokma.library.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Denis Popolamov
@@ -13,13 +17,20 @@ public class Books {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long book_id;
     //private int genre_id;
-    private String cover, view_link, download_link, author, name, description;
+    private String cover;
+    private String view_link;
+    private String download_link;
+    @NotEmpty
+    private String author;
+    @NotEmpty
+    private String name;
+    private String description;
+    @ManyToMany(mappedBy = "books_list")
+    private Set<User> users = new HashSet<>();
+
     @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
     @JoinColumn
     private User user;
-
-    public Books() {
-    }
 
     public Books(String name, String author, String cover, String view_link, String download_link, String description) {
         this.name = name;
@@ -29,4 +40,9 @@ public class Books {
         this.download_link = download_link;
         this.cover = cover;
     }
+
+    public Books() {
+
+    }
+
 }

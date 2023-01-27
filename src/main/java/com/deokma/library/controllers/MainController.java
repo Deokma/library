@@ -19,7 +19,8 @@ public class MainController {
     @Autowired
     private BooksRepository booksRepository;
 
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    //@RequestMapping(value = "/", method = RequestMethod.GET)
+    @GetMapping("/")
     public String main(Model model, Principal principal) {
         Iterable<Books> books = booksRepository.findAll();
         model.addAttribute("books", books);

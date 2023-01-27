@@ -8,10 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author Denis Popolamov
@@ -22,18 +19,23 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class AdminController {
     private final UserService userService;
 
-    @RequestMapping(value = "/admin", method = RequestMethod.GET)
+    //@RequestMapping(value = "/admin", method = RequestMethod.GET)
+    @GetMapping("/admin")
     public String admin(Model model) {
         model.addAttribute("users", userService.list());
         return "admin";
     }
-    @RequestMapping(value = "/admin/user/ban/{id}", method = RequestMethod.POST)
-    public String userBan(@PathVariable("id") Long id){
+
+    //@RequestMapping(value = "/admin/user/ban/{id}", method = RequestMethod.POST)
+    @PostMapping("/admin/user/ban/{id}")
+    public String userBan(@PathVariable("id") Long id) {
         userService.banUser(id);
         return "redirect:/admin";
     }
-    @RequestMapping(value = "/admin/user/unban/{id}", method = RequestMethod.POST)
-    public String userUnban(@PathVariable("id") Long id){
+
+    //@RequestMapping(value = "/admin/user/unban/{id}", method = RequestMethod.POST)
+    @PostMapping("/admin/user/unban/{id}")
+    public String userUnban(@PathVariable("id") Long id) {
         userService.unbanUser(id);
         return "redirect:/admin";
     }

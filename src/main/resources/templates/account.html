@@ -27,17 +27,20 @@
         </div>
     </div>
     <h4>Ваши книги:</h4>
+<!--<div th:each="list : ${book_list}">-->
+<!--    <p th:text="${list.name}"></p>-->
+<!--</div>-->
     <div class="container">
         <div class="secondary alert-info mt-2">
             <div class="row row-cols-1 row-cols-md-5 g-4">
-                <div th:each="el : ${books}">
+                <div th:each="el : ${book_list}">
                     <div class="col ">
                         <div class="card h-100">
                             <a th:href="'/books/' + ${el.book_id}">
                                 <img th:src="${el.cover}" width="500" height="300" th:href="'/books/' + ${el.book_id}"
                                      class="card-img-top" alt="...">
                             </a>
-                            <div class="card-footer" style="max-height: 50px;">
+                            <div class="card-footer" style="max-height: 50px; word-wrap: break-word;">
                                 <a th:href="'/books/' + ${el.book_id}" class="text-decoration-none">
                                     <h6 th:text="${el.name}" class="text-center text-dark"></h6>
                                 </a>
