@@ -15,21 +15,25 @@
             <div th:each="el : ${books}">
                 <div class="col ">
                     <div class="card h-100">
-                        <a th:href="'/books/' + ${el.book_id}">
-                            <img th:src="${el.cover}" width="500" height="300" th:href="'/books/' + ${el.book_id}"
-                                 class="card-img-top" alt="...">
-                        </a>
-                        <form th:action="'/user/' + ${usersession.id} + '/' + ${el.book_id}" method="post">
-<!--                            <input type="hidden" name="_csrf" th:value="${_csrf.token}">-->
-                            <input type="submit" value="Add" class="btn btn-primary btn-success">
-                        </form>
-
-<!--                        <form th:unless="${u.active}" th:action="'/admin/user/unban/' + ${u.id}" method="post">-->
-<!--                            <input type="hidden" name="_csrf" th:value="${_csrf.token}">-->
-<!--                            <input type="submit" value="Unban" class="btn btn-primary btn-success">-->
-<!--                        </form>-->
+                        <div class="position-relative">
+                            <form th:if="${!usersession.getBooks_list().contains(el)}" class="position-absolute"
+                                  th:action="'/user/'+ ${el.book_id} + '/atu'" method="post">
+                                <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                                <input type="submit" value="🤍" class="btn" style="font-size: larger">
+                            </form>
+                            <form th:unless="${!usersession.getBooks_list().contains(el)}" class="position-absolute"
+                                  th:action="'/user/' + ${el.book_id} + '/dfu'" method="post">
+                                <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                                <input type="submit" value="❤" class="btn" style="font-size: larger">
+                            </form>
+                            <a th:href="'/books/' + ${el.book_id}">
+                                <img th:src="${el.cover}" width="500" height="300" th:href="'/books/' + ${el.book_id}"
+                                     class="card-img-top img-responsive" alt="...">
+                            </a>
+                        </div>
                         <div class="card-footer">
-                            <a th:href="'/books/' + ${el.book_id}" class="text-decoration-none" style="max-height: 100px">
+                            <a th:href="'/books/' + ${el.book_id}" class="text-decoration-none"
+                               style="max-height: 100px">
                                 <h5 th:text="${el.name}" class="text-center text-dark"></h5>
                             </a>
                             <h6 th:text="${el.author}" class="text-muted" style="max-height: 40px "></h6>

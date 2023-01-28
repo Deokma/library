@@ -5,10 +5,14 @@ import com.deokma.library.models.User;
 import com.deokma.library.repo.BooksRepository;
 import com.deokma.library.repo.UserRepository;
 import com.deokma.library.services.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -46,11 +50,13 @@ public class BooksController {
     @PreAuthorize("hasAuthority('ADMIN')")
     //@RequestMapping(value = "/books/add", method = RequestMethod.POST)
     @PostMapping("/books/add")
-    public String booksAddPost(@RequestParam String name, @RequestParam String author,
+    public String booksAddPost(@RequestParam String name,
+                               @RequestParam String author,
                                @RequestParam String cover, @RequestParam String view_link,
                                @RequestParam String download_link,
-                               @RequestParam String description, Model model) {
+                               @RequestParam String description) {
         Books books = new Books(name, author, cover, view_link, download_link, description);
+
         booksRepository.save(books);
 //        return "redirect:/books";
         return "redirect:/";
@@ -59,9 +65,6 @@ public class BooksController {
     //@RequestMapping(value = "/books/{book_id}", method = RequestMethod.GET)
     @GetMapping("/books/{book_id}")
     public String bookDetails(@PathVariable(value = "book_id") long book_id, Model model) {
-//        if (!booksRepository.existsById(book_id)) {
-//            return "redirect:/error";
-//        }
         Optional<Books> book = booksRepository.findById(book_id);
         ArrayList<Books> res = new ArrayList<>();
         book.ifPresent(res::add);
@@ -112,18 +115,29 @@ public class BooksController {
     }
 
     //Add book to account
-    //Add to Account - ata
-    @PostMapping("/user/{user_id}/{book_id}")
-    public String addBookToAccount(@PathVariable(value = "user_id") Long user_id,
-                                   @PathVariable(value = "book_id") Long book_id, Principal principal) {
-        //User_Books userBooks = new User_Books(book_id, user_id);
-        //userBooksRepository.save(userBooks);
+    //Add to User - atu
+    @PostMapping("/user/{book_id}/atu")
+    public String addBookToUser(@PathVariable(value = "book_id") Long book_id, Principal principal,
+                                HttpServletRequest request) {
         User user = userService.getUserByPrincipal(principal);
         Books book = booksRepository.findById(book_id).orElseThrow();
         if (!user.getBooks_list().contains(book)) {
             user.getBooks_list().add(book);
         }
         userRepository.save(user);
-        return "redirect:/";
+        return "redirect:" + request.getHeader("referer");
+    }
+
+    //Delete from User - dfu
+    @PostMapping("/user/{book_id}/dfu")
+    public String DeleteBookFromUser(@PathVariable(value = "book_id") Long book_id, Principal principal,
+                                     HttpServletRequest request) {
+        User user = userService.getUserByPrincipal(principal);
+        Books book = booksRepository.findById(book_id).orElseThrow();
+        if (user.getBooks_list().contains(book)) {
+            user.getBooks_list().remove(book);
+        }
+        userRepository.save(user);
+        return "redirect:" + request.getHeader("referer");
     }
 }

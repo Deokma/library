@@ -29,9 +29,34 @@
                                 </div>
                                 <div class="p-1">
                                 </div>
-                                <div th:if="${usersession.isAdmin()}" class="p-1">
-                                    <a th:href="'/books/' + ${el.book_id} + '/edit'"
-                                       class="btn btn-warning ms-3">Редактировать</a>
+                                <div class="container">
+                                    <div class="row justify-content-start">
+                                        <div th:if="${usersession.isAdmin()}" class="p-1 col-2">
+                                            <a th:href="'/books/' + ${el.book_id} + '/edit'"
+                                               class="btn btn-warning ms-3">Редактировать</a>
+                                        </div>
+                                        <div class="col-2 p-1">
+                                            <form th:if="${!usersession.getBooks_list().contains(el)}"
+                                                  th:action="'/user/' + ${el.book_id} + '/atu'" method="post">
+                                                <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                                                <input type="submit" value="🤍 В избранное"
+                                                       class="btn btn-primary btn-light ms-3">
+                                            </form>
+
+                                            <!--                                <div th:if="${!usersession.getBooks_list().contains(el)}">-->
+                                            <!--                                    <a th:href="'/user/' + ${el.book_id} + '/atu'">🤍</a>-->
+                                            <!--                                </div>-->
+                                            <!--                                <div th:unless="${!usersession.getBooks_list().contains(el)}">-->
+                                            <!--                                    <a th:href="'/user/' + ${el.book_id} + '/dfu'">❤</a>-->
+                                            <!--                                </div>-->
+                                            <form th:unless="${!usersession.getBooks_list().contains(el)}"
+                                                  th:action="'/user/' + ${el.book_id} + '/dfu'" method="post">
+                                                <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                                                <input type="submit" value="❤ Убрать"
+                                                       class="btn btn-primary btn-light ms-3">
+                                            </form>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <h5 class="px-2 text-light fw-bold">Описание:</h5>

@@ -20,9 +20,9 @@ public class Books {
     private String cover;
     private String view_link;
     private String download_link;
-    @NotEmpty
+    @NotEmpty(message = "Author should not be empty")
     private String author;
-    @NotEmpty
+    @NotEmpty(message = "Name should not be empty")
     private String name;
     private String description;
     @ManyToMany(mappedBy = "books_list")
