@@ -6,6 +6,7 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="icon" href="./images/books-icon-light-theme.png">
     <title>Account</title>
 </head>
 <body class="bg-secondary">
@@ -17,19 +18,16 @@
                 <img th:src="${usersession.avatar}" width="150" height="150" alt="">
                 <br><br>
                 <form action="">
-                    <input type="submit" value="Обновить Аватарку">
+                    <input type="submit" value="Update Avatar">
                 </form>
             </div>
         </div>
         <div class="col-8">
             <h3 th:text="${usersession.username}" class="text-start"></h3>
-            <h4 th:text="'Роль: ' + ${usersession.roles}"></h4>
+            <h4 th:text="'Role: ' + ${usersession.roles}"></h4>
         </div>
     </div>
     <h4>Ваши книги:</h4>
-<!--<div th:each="list : ${book_list}">-->
-<!--    <p th:text="${list.name}"></p>-->
-<!--</div>-->
     <div class="container">
         <div class="secondary alert-info mt-2">
             <div class="row row-cols-1 row-cols-md-5 g-4">

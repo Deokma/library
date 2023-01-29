@@ -3,6 +3,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="/images/books-icon-light-theme.png">
     <title th:text="${user.username}"></title>
 </head>
 <body class="bg-secondary">
@@ -17,11 +18,10 @@
         </div>
         <div class="col-8">
             <h3 th:text="${user.username}" class="text-start"></h3>
-            <h4 th:text="'Роль: ' + ${user.roles}"></h4>
-            <p th:if="${user.}"></p>
+            <h4 th:text="'Role: ' + ${user.roles}"></h4>
         </div>
     </div>
-    <h4 class="px-3">Кники пользователя:</h4>
+    <h4 class="px-3">User books:</h4>
     <div class="container">
         <div class="secondary alert-info mt-2">
             <div class="row row-cols-1 row-cols-md-5 g-4">

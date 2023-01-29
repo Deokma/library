@@ -3,27 +3,28 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="./images/books-icon-light-theme.png">
     <title>Admin Panel</title>
 </head>
 <body class="bg-secondary">
 <header th:insert="~{components/header :: header}"></header>
-<h2 class="container text-light">Панель администратора</h2>
+<h2 class="container text-light">Admin Panel</h2>
 <table class="table table-dark table-striped container">
     <tr>
         <th scope="col">Username</th>
-        <th scope="col">Активность</th>
-        <th scope="col">Роли</th>
-        <th scope="col">Редактировать</th>
-        <th scope="col">Подробная информация</th>
-        <th scope="col">Бан</th>
+        <th scope="col">Activity</th>
+        <th scope="col">Roles</th>
+        <th scope="col">Edit</th>
+        <th scope="col">Detailed information</th>
+        <th scope="col">Ban</th>
     </tr>
     <div th:each="u : ${users}">
         <tr>
             <th th:text="${u.username}"></th>
             <th th:text="${u.active}"></th>
-            <th th:text="${u.roles}">Роли</th>
-            <th><a th:href="'/admin/user/edit/' + ${u.id}" class="text-light">Редактировать</a></th>
-            <th><a th:href="'/user/' + ${u.id}" class="text-light">Подробная информация</a></th>
+            <th th:text="${u.roles}">Roles</th>
+            <th><a th:href="'/admin/user/edit/' + ${u.id}" class="text-light">Edit</a></th>
+            <th><a th:href="'/user/' + ${u.id}" class="text-light">Detailed information</a></th>
             <th>
                 <form th:if="${u.active}" th:action="'/admin/user/ban/' + ${u.id}" method="post">
                     <input type="hidden" name="_csrf" th:value="${_csrf.token}">
@@ -37,6 +38,5 @@
         </tr>
     </div>
 </table>
-
 </body>
 </html>

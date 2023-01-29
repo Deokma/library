@@ -33,26 +33,29 @@ public class UserService {
         userRepository.save(user);
         return true;
     }
-    public List<User> list(){
+
+    public List<User> list() {
         return (List<User>) userRepository.findAll();
     }
 
     public void banUser(Long id) {
         User user = userRepository.findById(id).orElse(null);
-        if(user != null){
+        if (user != null) {
             user.setActive(false);
-            log.info("Ban user with id = {}; name: {}",user.getId(),user.getUsername());
+            log.info("Ban user with id = {}; name: {}", user.getId(), user.getUsername());
         }
         userRepository.save(user);
     }
+
     public void unbanUser(Long id) {
         User user = userRepository.findById(id).orElse(null);
-        if(user != null){
+        if (user != null) {
             user.setActive(true);
-            log.info("Unban user with id = {}; name: {}",user.getId(),user.getUsername());
+            log.info("Unban user with id = {}; name: {}", user.getId(), user.getUsername());
         }
         userRepository.save(user);
     }
+
     public User getUserByPrincipal(Principal principal) {
         if (principal == null) return new User();
         return userRepository.findByUsername(principal.getName());
