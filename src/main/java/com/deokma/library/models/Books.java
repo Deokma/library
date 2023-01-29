@@ -16,7 +16,6 @@ public class Books {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long book_id;
-    //private int genre_id;
     private String cover;
     private String view_link;
     private String download_link;

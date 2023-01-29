@@ -1,16 +1,17 @@
 package com.deokma.library.controllers;
 
-import com.deokma.library.models.Books;
-import com.deokma.library.repo.BooksRepository;
 import com.deokma.library.services.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 
 /**
+ * Controller with admin functions
+ *
  * @author Denis Popolamov
  */
 @Controller
@@ -19,21 +20,29 @@ import org.springframework.web.bind.annotation.*;
 public class AdminController {
     private final UserService userService;
 
-    //@RequestMapping(value = "/admin", method = RequestMethod.GET)
+    /**
+     * Go to the Admin panel page
+     *
+     * @return Admin Page
+     */
     @GetMapping("/admin")
     public String admin(Model model) {
         model.addAttribute("users", userService.list());
         return "admin";
     }
 
-    //@RequestMapping(value = "/admin/user/ban/{id}", method = RequestMethod.POST)
+    /**
+     * Method for ban User
+     */
     @PostMapping("/admin/user/ban/{id}")
     public String userBan(@PathVariable("id") Long id) {
         userService.banUser(id);
         return "redirect:/admin";
     }
 
-    //@RequestMapping(value = "/admin/user/unban/{id}", method = RequestMethod.POST)
+    /**
+     * Method for unban User
+     */
     @PostMapping("/admin/user/unban/{id}")
     public String userUnban(@PathVariable("id") Long id) {
         userService.unbanUser(id);

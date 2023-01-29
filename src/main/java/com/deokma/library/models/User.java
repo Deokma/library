@@ -2,15 +2,13 @@ package com.deokma.library.models;
 
 import com.deokma.library.models.enums.Role;
 import jakarta.persistence.*;
-
-import java.util.*;
-
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import org.apache.catalina.LifecycleState;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.*;
 
 /**
  * @author Denis Popolamov
@@ -62,11 +60,6 @@ public class User implements UserDetails {
     public User() {
     }
 
-    //
-    public void addBook(Books _books){
-        this.books_list.add(_books);
-        _books.getUsers().add(this);
-    }
     //security
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

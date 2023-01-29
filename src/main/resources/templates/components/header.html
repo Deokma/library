@@ -21,15 +21,12 @@
                     </li>
                 </ul>
                 <form class="d-flex">
-<!--                    <button class="btn btn-dark btn-sm text-light " aria-current="page" type="submit">-->
-<!--                        <a href="/books" class="text-decoration-none text-reset fw-bold">Книги</a>-->
-<!--                    </button>-->
                     <div th:if="${usersession.isAdmin()}">
                         <button class="btn btn-dark btn-sm text-light " aria-current="page" type="submit">
-                            <a href="/books/add" class="text-decoration-none text-reset fw-bold">Добавить книгу</a>
+                            <a href="/books/add" class="text-decoration-none text-reset fw-bold">Add book</a>
                         </button>
                         <button class="btn btn-dark btn-sm text-light " aria-current="page" type="submit">
-                            <a href="/admin" class="text-decoration-none text-reset fw-bold">Панель Администратора</a>
+                            <a href="/admin" class="text-decoration-none text-reset fw-bold">Admin Panel</a>
                         </button>
                     </div>
                 </form>
@@ -38,7 +35,7 @@
                         <div class="row">
                             <div class="col">
                                 <button class="btn btn-online-primary btn-sm btn-light float-right px-3" type="submit">
-                                    <a href="/account" class="text-decoration-none text-reset">Аккаунт</a>
+                                    <a href="/account" class="text-decoration-none text-reset">Account</a>
                                 </button>
                             </div>
                             <div class="col">
@@ -46,7 +43,7 @@
                                     <input type="hidden" name="_csrf" th:value="${_csrf.token}">
                                     <input type="submit"
                                            class="btn btn-online-primary btn-sm btn-light float-right px-3"
-                                           value="Выйти">
+                                           value="Log out">
                                 </form>
                             </div>
                         </div>
