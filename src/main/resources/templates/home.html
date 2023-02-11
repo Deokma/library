@@ -5,10 +5,17 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link th:href="@{/css/themes.css}" rel="stylesheet"/>
+    <link th:href="@{/js/themes.js}" rel="script">
     <title>Books</title>
 </head>
 <body class="bg-secondary">
+<script th:src="@{/js/themes.js}"></script>
 <header th:insert="~{components/header :: header}"></header>
+<div id="element">
+    <p>hghfty</p>
+    <button id="toggle-button">Toggle Theme</button>
+</div>
 <div class="container">
     <div class="secondary alert-info mt-2">
         <div class="row row-cols-1 row-cols-md-5 g-4">
