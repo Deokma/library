@@ -18,6 +18,7 @@
 
 const toggleButton = document.getElementById('toggle-button');
 const div = document.querySelector('div');
+const theme = document.getElementById('themecss');
 
 toggleButton.addEventListener('click', function () {
     if (div.classList.contains('light-theme')) {

@@ -42,6 +42,7 @@ public class SecurityConfig {
                 .and()
                 .authorizeRequests((requests) -> requests
                         .requestMatchers(HttpMethod.GET).permitAll()
+                        .requestMatchers(HttpMethod.POST).permitAll()
                         .requestMatchers("/", "/books", "/books/{book_id}", "/login", "/registration").permitAll()
                         .anyRequest().authenticated())
                 .formLogin()

@@ -25,8 +25,8 @@
                             <h6 th:text="'Author: ' + ${el.author}" class="text-start px-4 text-light fw-norm"></h6>
                             <div class="p-2 px-1">
                                 <div class="p-1">
-                                    <a class="btn btn-light ms-3" th:href="${el.view_link}">Read</a>
-                                    <a class="btn btn-light ms-3" th:href="${el.download_link}">Download</a>
+                                    <a class="btn btn-light ms-3" th:href="'/read/' + ${el.book_id}">Read</a>
+                                    <a class="btn btn-light ms-3" th:href="'/download/'+ ${el.book_id}">Download</a>
                                 </div>
                                 <div class="p-1">
                                 </div>

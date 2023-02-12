@@ -15,7 +15,8 @@
     <div>
         <div class="row row-cols-1 row-cols-md-2 g-1 bg-dark">
             <div class="col-lg-4">
-                <img th:src="'https://sun9-49.userapi.com/tfNPDe06B8H4gSHaO1PkXEhTUee8bNkv0_VhHw/2mSp0XPvjAk.jpg'" width="300" height="600"
+                <img th:src="'https://sun9-49.userapi.com/tfNPDe06B8H4gSHaO1PkXEhTUee8bNkv0_VhHw/2mSp0XPvjAk.jpg'"
+                     width="300" height="600"
                      class="card-img-top" alt="...">
             </div>
             <div class=" col-lg-8 container position-relative">
@@ -29,17 +30,6 @@
                         <input type="text" name="author" placeholder="Enter author" class="form-control"><br>
                     </div>
                     <br>
-                    <div class="">
-                        <h5 class="text-light">Read link:</h5>
-                        <input type="text" name="view_link" placeholder="Enter read link"
-                               class="form-control"><br>
-                    </div>
-                    <div>
-                        <h5 class="text-light">Download link:</h5>
-                        <input type="text" name="download_link" placeholder="Enter download link"
-                               class="form-control"><br>
-                    </div>
-                    <br>
                     <h5 class="px-2 text-light fw-bold">Description:</h5>
                     <textarea type="text" name="description" placeholder="Enter description"
                               class="form-control"></textarea><br>
@@ -47,6 +37,13 @@
                     <input type="text" name="cover" th:value="'https://clck.ru/33LDY5'"
                            placeholder="Enter cover link"
                            class="form-control"><br>
+                    <div>
+                        <h5 class="text-light">Book File:</h5>
+                        <input type="file" name="book_file" placeholder="Book File"
+                               class="form-control">
+                        <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                        <br>
+                    </div>
                     <div class="container text-center">
                         <div class="row justify-content-center">
                             <div class="col-4">
