@@ -2,8 +2,10 @@ package com.deokma.library.controllers;
 
 import com.deokma.library.exceptions.ResourceNotFoundException;
 import com.deokma.library.models.Books;
+import com.deokma.library.models.BooksCover;
 import com.deokma.library.models.BooksPDF;
 import com.deokma.library.models.User;
+import com.deokma.library.repo.BooksCoverRepository;
 import com.deokma.library.repo.BooksPdfRepository;
 import com.deokma.library.repo.BooksRepository;
 import com.deokma.library.repo.UserRepository;
@@ -14,7 +16,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,7 +31,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -39,13 +48,15 @@ import java.util.Optional;
 public class BooksController {
 
     private final BooksRepository booksRepository;
+    private final BooksCoverRepository booksCoverRepository;
     private final BooksPDFService bookPdfService;
     private final BooksPdfRepository booksPDFRepository;
     private final UserRepository userRepository;
     private final UserService userService;
 
-    public BooksController(BooksRepository booksRepository, BooksPDFService bookPdfService, BooksPdfRepository booksPDFRepository, UserRepository userRepository, UserService userService) {
+    public BooksController(BooksRepository booksRepository, BooksCoverRepository booksCoverRepository, BooksPDFService bookPdfService, BooksPdfRepository booksPDFRepository, UserRepository userRepository, UserService userService) {
         this.booksRepository = booksRepository;
+        this.booksCoverRepository = booksCoverRepository;
         this.bookPdfService = bookPdfService;
         this.booksPDFRepository = booksPDFRepository;
         this.userRepository = userRepository;
@@ -76,12 +87,16 @@ public class BooksController {
      *
      * @param name        Name of Book
      * @param author      Author of Book
-     * @param cover       Cover of Book
      * @param description Description of Book
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/books/add")
-    public String booksAddPost(@RequestParam String name, @RequestParam String author, @RequestParam String cover, @RequestParam String description, @RequestParam("book_file") MultipartFile file, Model model) {
+    public String booksAddPost(@RequestParam String name,
+                               @RequestParam String author,
+                               @RequestParam String description,
+                               @RequestParam("book_file") MultipartFile file,
+                               @RequestParam("bookCover") MultipartFile bookCoverFile,
+                               @RequestParam("imageURL") String imageURL, Model model) {
         //Books books = new Books(name, author, cover, view_link, download_link, description);
         Books book = new Books();
         try {
@@ -90,15 +105,22 @@ public class BooksController {
             }
             book.setName(name);
             book.setAuthor(author);
-            book.setCover(cover);
+            //book.setCover(cover);
             book.setDescription(description);
 
-//            String filePath = uploadDirectory + file.getOriginalFilename();
-//
-//            // Save the file to the specified directory
-//            java.io.File dest = new java.io.File(filePath);
-//            file.transferTo(dest);
             booksRepository.save(book);
+
+            BooksCover booksCover = new BooksCover();
+            booksCover.setId(book.getBook_id());
+            booksCover.setFileName(bookCoverFile.getOriginalFilename());
+            if (!bookCoverFile.isEmpty()) {
+                booksCover.setData(bookCoverFile.getBytes());
+            } else if (!imageURL.isEmpty()) {
+                booksCover.setData(convert(imageURL));
+            } else {
+                booksCover.setData(convert("https://clck.ru/33LDY5"));
+            }
+            booksCoverRepository.save(booksCover);
 
             BooksPDF books_pdf = new BooksPDF();
             books_pdf.setId(book.getBook_id());
@@ -106,15 +128,33 @@ public class BooksController {
             books_pdf.setData(file.getBytes());
             booksPDFRepository.save(books_pdf);
 
+
             model.addAttribute("message", "File uploaded successfully! to ");
-            //System.out.println("File uploaded successfully!");
         } catch (Exception e) {
             model.addAttribute("message", "File upload failed! " + e.getMessage());
-            //System.out.println("File upload failed!");
         }
 
 
         return "redirect:/";
+    }
+
+    /**
+     * Converter link to file
+     *
+     * @param coverImageUrl
+     * @return
+     * @throws IOException
+     */
+    public static byte[] convert(String coverImageUrl) throws IOException {
+        URL url = new URL(coverImageUrl);
+        ReadableByteChannel rbc = Channels.newChannel(url.openStream());
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int bytesRead;
+        while ((bytesRead = rbc.read(ByteBuffer.wrap(buffer))) != -1) {
+            baos.write(buffer, 0, bytesRead);
+        }
+        return baos.toByteArray();
     }
 
     /**
@@ -137,6 +177,17 @@ public class BooksController {
     public String bookEdit(@PathVariable(value = "book_id") long book_id, Model model) {
         Optional<Books> book = booksRepository.findById(book_id);
         ArrayList<Books> res = new ArrayList<>();
+//        BooksCover booksCover = new BooksCover();
+//        booksCover.setId(book.getBook_id());
+//        booksCover.setFileName(bookCoverFile.getOriginalFilename());
+//        if (!bookCoverFile.isEmpty()) {
+//            booksCover.setData(bookCoverFile.getBytes());
+//        } else if (!imageURL.isEmpty()) {
+//            booksCover.setData(convert(imageURL));
+//        } else {
+//            booksCover.setData(convert("https://clck.ru/33LDY5"));
+//        }
+//        booksCoverRepository.save(booksCover);
         book.ifPresent(res::add);
         model.addAttribute("book", res);
         return "book-edit";
@@ -157,7 +208,7 @@ public class BooksController {
         Books books = booksRepository.findById(book_id).orElseThrow();
         books.setName(name);
         books.setAuthor(author);
-        books.setCover(cover);
+        //books.setCover(cover);
         books.setDescription(description);
         booksRepository.save(books);
         return "redirect:/";
@@ -170,6 +221,7 @@ public class BooksController {
     @PostMapping("/books/{book_id}/remove")
     public String bookDeletePost(@PathVariable(value = "book_id") long book_id) {
         Books books = booksRepository.findById(book_id).orElseThrow();
+
         booksRepository.delete(books);
         return "redirect:/";
     }
@@ -245,5 +297,15 @@ public class BooksController {
                 .headers(headers)
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(new InputStreamResource(bis));
+    }
+
+    @GetMapping("/image/{id}")
+    public ResponseEntity<byte[]> getImage(@PathVariable Long id) throws IOException, ChangeSetPersister.NotFoundException {
+        BooksCover book = booksCoverRepository.findById(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        byte[] image = book.getData();
+        final HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_PNG);
+        headers.setContentType(MediaType.IMAGE_PNG);
+        return new ResponseEntity<>(image, headers, HttpStatus.OK);
     }
 }

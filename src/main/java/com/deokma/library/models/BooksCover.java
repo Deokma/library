@@ -9,8 +9,8 @@ import lombok.Data;
  */
 @Data
 @Entity
-@Table(name = "bookspdf")
-public class BooksPDF {
+@Table(name = "bookscovers")
+public class BooksCover {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

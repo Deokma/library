@@ -59,7 +59,17 @@ public class User implements UserDetails {
 
     public User() {
     }
+    public class CurrentUser {
+        private User user;
 
+        public CurrentUser(User user) {
+            this.user = user;
+        }
+
+        public User getUser() {
+            return user;
+        }
+    }
     //security
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

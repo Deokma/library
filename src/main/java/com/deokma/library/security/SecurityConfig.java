@@ -1,5 +1,6 @@
 package com.deokma.library.security;
 
+
 import com.deokma.library.services.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +61,13 @@ public class SecurityConfig {
             AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
-
+//    @Bean
+//    public AuthenticationSuccessHandler successHandler() {
+//        return (request, response, authentication) -> {
+//            User user = ((org.springframework.security.core.userdetails.User) authentication.getPrincipal()).;
+//            request.getSession().setAttribute("CURRENT_USER", new User.CurrentUser(user));
+//        };
+//    }
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

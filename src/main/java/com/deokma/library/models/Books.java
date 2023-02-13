@@ -17,7 +17,11 @@ public class Books {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long book_id;
-    private String cover;
+    //    private String cover;
+//    @OneToOne(cascade = CascadeType.ALL)
+//    private BookCover bookCover;
+//    @Lob
+//    private byte[] coverImage;
     @NotEmpty(message = "Author should not be empty")
     private String author;
     @NotEmpty(message = "Name should not be empty")
@@ -31,16 +35,10 @@ public class Books {
     @JoinColumn
     private User user;
 
+    @Transient
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "book_id", referencedColumnName = "id")
     private BooksPDF bookspdf;
-
-    public Books(String name, String author, String cover, String description) {
-        this.name = name;
-        this.author = author;
-        this.description = description;
-        this.cover = cover;
-    }
 
     public Books() {
 
