@@ -12,10 +12,11 @@
 <body class="bg-secondary">
 
 <header th:insert="~{components/header :: header}"></header>
-<div id="element">
-    <p>hghfty</p>
-    <button id="toggle-button">Toggle Theme</button>
-</div>
+<!--<div id="element">-->
+<!--    <p>hghfty</p>-->
+<!--    <button id="toggle-button">Toggle Theme</button>-->
+<!--</div>-->
+<!--<p th:text="${userq.username}"></p>-->
 <div class="container">
     <div class="secondary alert-info mt-2">
         <div class="row row-cols-1 row-cols-md-5 g-4">
@@ -33,10 +34,17 @@
                                 <input type="hidden" name="_csrf" th:value="${_csrf.token}">
                                 <input type="submit" value="❤" class="btn" style="font-size: larger">
                             </form>
-                            <a th:href="'/books/' + ${el.book_id}">
-                                <img th:src="${el.cover}" width="500" height="300" th:href="'/books/' + ${el.book_id}"
-                                     class="card-img-top img-responsive" alt="...">
-                            </a>
+                            <div>
+                                <a th:href="'/books/' + ${el.book_id}">
+                                    <!--                                    https://clck.ru/33LDY5-->
+                                    <!--                                    <img th:src="@{/image/0}" width="500"-->
+                                    <!--                                         height="300" class="card-img-top img-responsive">-->
+                                    <img th:src="@{/image/{id}(id=${el.book_id})}" alt=""
+                                         width="500" height="300"
+                                         th:href="'/books/' + ${el.book_id}"
+                                         class="card-img-top img-responsive">
+                                </a>
+                            </div>
                         </div>
                         <div class="card-footer">
                             <a th:href="'/books/' + ${el.book_id}" class="text-decoration-none"

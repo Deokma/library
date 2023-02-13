@@ -33,10 +33,28 @@
                     <h5 class="px-2 text-light fw-bold">Description:</h5>
                     <textarea type="text" name="description" placeholder="Enter description"
                               class="form-control"></textarea><br>
-                    <h5 class="text-light">Cover link:</h5>
-                    <input type="text" name="cover" th:value="'https://clck.ru/33LDY5'"
-                           placeholder="Enter cover link"
-                           class="form-control"><br>
+                    <h5 class="text-light">Cover:</h5>
+                    <!--                    <input type="text" name="cover" th:value="'https://clck.ru/33LDY5'"-->
+                    <!--                           placeholder="Enter cover link"-->
+                    <!--                           class="form-control"><br>-->
+
+<!--                    <form>-->
+                        <select id="file-type-select" class="form-select form-select-sm"
+                                aria-label=".form-select-sm example">
+                            <option value="file">File</option>
+                            <option value="link">Link</option>
+                        </select>
+                        <div id="file-input">
+                            <label>File:</label>
+                            <input type="file" name="bookCover" class="form-control">
+                        </div>
+                        <div id="link-input" style="display:none;">
+                            <label>Link:</label>
+                            <input type="text" name="imageURL" class="form-control">
+                        </div>
+<!--                    </form>-->
+
+                    <br>
                     <div>
                         <h5 class="text-light">Book File:</h5>
                         <input type="file" name="book_file" placeholder="Book File"
@@ -60,5 +78,20 @@
     </div>
 </div>
 <footer th:insert="~{components/footer :: footer}"></footer>
+<script>
+    var fileInput = document.getElementById("file-input");
+    var linkInput = document.getElementById("link-input");
+    var fileTypeSelect = document.getElementById("file-type-select");
+
+    fileTypeSelect.addEventListener("change", function () {
+        if (this.value === "file") {
+            fileInput.style.display = "block";
+            linkInput.style.display = "none";
+        } else {
+            fileInput.style.display = "none";
+            linkInput.style.display = "block";
+        }
+    });
+</script>
 </body>
 </html>
