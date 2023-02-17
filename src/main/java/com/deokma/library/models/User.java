@@ -47,6 +47,9 @@ public class User implements UserDetails {
     )
     private List<Books> books_list = new ArrayList<>();
 
+    //@OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    //private AvatarImage avatarImage;
+
     public User(String username, String password, Set<Role> roles) {
         this.username = username;
         this.password = password;

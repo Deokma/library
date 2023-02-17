@@ -6,7 +6,7 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="icon" href="../static/images/books-icon-light-theme.png">
+    <link rel="icon" href="../static/images/icons/books-icon-light-theme.png">
     <title>Account</title>
 </head>
 <body class="bg-secondary">
@@ -17,9 +17,19 @@
             <div class="">
                 <img th:src="${usersession.avatar}" width="150" height="150" alt="">
                 <br><br>
-                <form action="">
-                    <input type="submit" value="Update Avatar">
-                </form>
+                <!--                <form action="">-->
+                <!--                    <input type="submit" value="Update Avatar">-->
+                <!--                </form>-->
+                <!--                <form th:action="@{/upload_avatar/{userid}(userid=${usersession.avatar})}" method="POST"-->
+                <!--                      enctype="multipart/form-data" id="uploadForm">-->
+                <!--                    <input type="file" name="file" onchange="document.getElementById('uploadForm').submit();"/>-->
+                <!--                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">-->
+                <!--                </form>-->
+<!--                <form th:action="@{/upload_avatar/{userid}(userid=${usersession.avatar})}"-->
+<!--                      th:object="${fileForm}" method="post" enctype="multipart/form-data">-->
+<!--                    <input type="file" id="avatar" name="avatar" onchange="showSubmitBtn()"/>-->
+<!--                    <button type="submit" id="submitBtn" style="display:none">Submit</button>-->
+<!--                </form>-->
             </div>
         </div>
         <div class="col-8">
@@ -35,7 +45,8 @@
                     <div class="col ">
                         <div class="card h-100">
                             <a th:href="'/books/' + ${el.book_id}">
-                                <img th:src="@{/image/{id}(id=${el.book_id})}" width="500" height="300" th:href="'/books/' + ${el.book_id}"
+                                <img th:src="@{/image/{id}(id=${el.book_id})}" width="500" height="300"
+                                     th:href="'/books/' + ${el.book_id}"
                                      class="card-img-top" alt="">
                             </a>
                             <div class="card-footer" style="max-height: 50px; word-wrap: break-word;">
@@ -52,5 +63,15 @@
     <br>
 </div>
 <footer th:insert="~{components/footer :: footer}"></footer>
+<script>
+    function showSubmitBtn() {
+        document.getElementById("submitBtn").style.display = "block";
+        document.getElementById("confirmBtn").style.display = "block";
+    }
+
+    function submitForm() {
+        document.getElementById("myForm").submit();
+    }
+</script>
 </body>
 </html>

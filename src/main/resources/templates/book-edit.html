@@ -5,8 +5,8 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="icon" href="../static/images/books-icon-light-theme.png">
-    <title th:text="${ed.name}"></title>
+    <link rel="icon" href="../static/images/icons/books-icon-light-theme.png">
+    <title th:text="${book.name}"></title>
 </head>
 <body class="bg-secondary">
 <header th:insert="~{components/header :: header}"></header>
@@ -15,57 +15,69 @@
         <div>
             <div class="row row-cols-1 row-cols-md-2 g-1 bg-dark">
                 <div class="col-lg-4">
-                    <img th:src="@{/image/{id}(id=${ed.book_id})}" width="300" height="600"
+                    <img th:src="@{/image/{id}(id=${book.book_id})}" width="300" height="600"
                          class="card-img-top" alt="...">
                 </div>
                 <div class=" col-lg-8 container position-relative">
-                    <form method="post">
+                    <form th:object="${book}" th:action="@{/book/edit/{id}(id=${book.book_id})}" method="post"
+                          enctype="multipart/form-data">
+                        <input type="hidden" th:field="*{book_id}"/>
                         <div class="col-md-8"><br>
                             <h5 class="text-light">Name:</h5>
-                            <input type="text" th:value="${ed.name}" name="name" placeholder="Enter name"
+                            <input type="text" id="name" th:field="*{name}" name="name" placeholder="Enter name"
                                    class="form-control text-start px-6 top-1 text-dark fw-bold mb-2">
+                            <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
                         </div>
                         <div class="input-group-sm col-md-4 col-md-offset-3">
                             <h5 class="text-light">Author:</h5>
-                            <input type="text" th:value="${ed.author}" name="author"
+                            <input type="text" id="author" th:field="*{author}" name="author"
                                    aria-describedby="inputGroup-sizing-sm"
                                    placeholder="Enter author"
                                    class="form-control">
+                            <span th:if="${#fields.hasErrors('author')}" th:errors="*{author}"></span>
                         </div>
                         <br>
                         <h5 class="px-2 text-light fw-bold">Description:</h5>
-                        <textarea th:text="${ed.description}" name="description" style="resize: none;height: 200px"
+                        <textarea id="description" th:field="*{description}" name="description"
+                                  style="resize: none;height: 200px"
                                   placeholder="Enter description"
                                   class="form-control"/>
-                        <h5 class="text-light">Cover link:</h5>
-                        <!--                        <input type="text" th:value="${ed.cover}" name="cover" placeholder="Enter cover link"-->
-                        <!--                               class="form-control"><br>-->
-
-
-                        <!--                        <select id="file-type-select" class="form-select form-select-sm"-->
-                        <!--                                aria-label=".form-select-sm example">-->
-                        <!--                            <option value="file">File</option>-->
-                        <!--                            <option value="link">Link</option>-->
-                        <!--                        </select>-->
-                        <!--                        <div id="file-input">-->
-                        <!--                            <label>File:</label>-->
-                        <!--                            <input type="file" name="bookCover" class="form-control">-->
-                        <!--                        </div>-->
-                        <!--                        <div id="link-input" style="display:none;">-->
-                        <!--                            <label>Link:</label>-->
-                        <!--                            <input type="text" name="imageURL" class="form-control">-->
-                        <!--                        </div>-->
-
+                        <span th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></span>
+                        <h5 class="text-light">Cover:</h5>
+                        <!--тут-->
+                        <select id="file-type-select" class="form-select form-select-sm"
+                                aria-label=".form-select-sm example">
+                            <option value="file">File</option>
+                            <option value="link">Link</option>
+                        </select>
+                        <div id="file-input">
+                            <label>File:</label>
+                            <input type="file" id="coverImage" name="coverImageFile" class="form-control"
+                                   accept=".jpg,.jpeg,.png,.web"
+                            >
+                        </div>
+                        <div id="link-input" style="display:none;">
+                            <label>Link:</label>
+                            <input type="text" name="imageURL" class="form-control">
+                        </div>
+                        <br>
+                        <div>
+                            <h5 class="text-light">Book File:</h5>
+                            <input type="file" name="pdfFile" id="pdfFile" placeholder="Book File"
+                                   class="form-control" accept=".pdf">
+                            <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                            <br>
+                        </div>
 
                         <div class="container text-center">
                             <div class="row justify-content-center">
                                 <div class="col-4">
-                                    <form method="post" th:action="'/books/' + ${ed.book_id} + '/edit'">
+                                    <form method="post" th:action="'/book/edit/' + ${book.book_id}">
                                         <button type="submit" class="btn btn-success btn-lg">Update</button>
                                     </form>
                                 </div>
                                 <div class="col-4">
-                                    <form method="post" th:action="'/books/' + ${ed.book_id} + '/remove'">
+                                    <form method="post" th:action="'/book/remove/' + ${book.book_id}">
                                         <button type="submit" class="btn btn-danger btn-lg">Delete</button>
                                     </form>
                                 </div>

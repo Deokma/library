@@ -5,7 +5,7 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="icon" href="../static/images/books-icon-light-theme.png">
+    <link rel="icon" href="../static/images/icons/books-icon-light-theme.png">
     <title th:text="${el.name}"></title>
 </head>
 <body class="bg-secondary">
@@ -31,11 +31,7 @@
                                 <div class="p-1">
                                 </div>
                                 <div class="container">
-                                    <div class="row justify-content-start">
-                                        <div th:if="${usersession.isAdmin()}" class="p-1 col-2">
-                                            <a th:href="'/books/' + ${el.book_id} + '/edit'"
-                                               class="btn btn-warning ms-3">Edit</a>
-                                        </div>
+                                    <div class="row justify-content-start row-cols-auto">
                                         <div class="col-2 p-1">
                                             <form th:if="${!usersession.getBooks_list().contains(el)}"
                                                   th:action="'/user/' + ${el.book_id} + '/atu'" method="post">
@@ -49,6 +45,10 @@
                                                 <input type="submit" value="❤ Favorites"
                                                        class="btn btn-primary btn-light ms-3">
                                             </form>
+                                        </div>
+                                        <div th:if="${usersession.isAdmin()}" class="p-1 col-1">
+                                            <a th:href="'/book/edit/' + ${el.book_id}"
+                                               class="btn btn-warning ms-3">Edit</a>
                                         </div>
                                     </div>
                                 </div>

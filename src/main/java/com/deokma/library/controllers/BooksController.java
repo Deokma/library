@@ -1,5 +1,6 @@
 package com.deokma.library.controllers;
 
+import com.deokma.library.exceptions.CustomNotFoundException;
 import com.deokma.library.exceptions.ResourceNotFoundException;
 import com.deokma.library.models.Books;
 import com.deokma.library.models.BooksCover;
@@ -24,11 +25,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -51,6 +52,7 @@ public class BooksController {
     private final BooksCoverRepository booksCoverRepository;
     private final BooksPDFService bookPdfService;
     private final BooksPdfRepository booksPDFRepository;
+    //private final UserBooksRepository userBooksRepository;
     private final UserRepository userRepository;
     private final UserService userService;
 
@@ -59,6 +61,7 @@ public class BooksController {
         this.booksCoverRepository = booksCoverRepository;
         this.bookPdfService = bookPdfService;
         this.booksPDFRepository = booksPDFRepository;
+        //this.userBooksRepository = userBooksRepository;
         this.userRepository = userRepository;
         this.userService = userService;
     }
@@ -102,6 +105,9 @@ public class BooksController {
         try {
             if (!file.getOriginalFilename().matches(".*\\.pdf$")) {
                 throw new Exception("Invalid file type. Only PDF files are allowed.");
+            }
+            if (!bookCoverFile.getOriginalFilename().matches(".*\\.(png|jpg|jpeg)$")) {
+                throw new Exception("Invalid file type. Only PNG files are allowed.");
             }
             book.setName(name);
             book.setAuthor(author);
@@ -173,55 +179,92 @@ public class BooksController {
      * Go to Edit Book Page
      */
     @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping("/books/{book_id}/edit")
+    @GetMapping("/book/edit/{book_id}")
     public String bookEdit(@PathVariable(value = "book_id") long book_id, Model model) {
-        Optional<Books> book = booksRepository.findById(book_id);
-        ArrayList<Books> res = new ArrayList<>();
-//        BooksCover booksCover = new BooksCover();
-//        booksCover.setId(book.getBook_id());
-//        booksCover.setFileName(bookCoverFile.getOriginalFilename());
-//        if (!bookCoverFile.isEmpty()) {
-//            booksCover.setData(bookCoverFile.getBytes());
-//        } else if (!imageURL.isEmpty()) {
-//            booksCover.setData(convert(imageURL));
-//        } else {
-//            booksCover.setData(convert("https://clck.ru/33LDY5"));
-//        }
-//        booksCoverRepository.save(booksCover);
-        book.ifPresent(res::add);
-        model.addAttribute("book", res);
+        Books book = booksRepository.findById(book_id)
+                .orElseThrow(() -> new CustomNotFoundException("Book not found with id " + book_id));
+
+        model.addAttribute("book", book);
         return "book-edit";
     }
 
-    /**
-     * Method for edit book parameters
-     *
-     * @param book_id     Book id
-     * @param name        Name of Book
-     * @param author      Author of Book
-     * @param cover       Cover of Book
-     * @param description Description of Book
-     */
+    ////////////////////////////////////////////////////
     @PreAuthorize("hasAuthority('ADMIN')")
-    @PostMapping("/books/{book_id}/edit")
-    public String bookEditPost(@PathVariable(value = "book_id") long book_id, @RequestParam String name, @RequestParam String author, @RequestParam String cover, @RequestParam String description) {
-        Books books = booksRepository.findById(book_id).orElseThrow();
-        books.setName(name);
-        books.setAuthor(author);
-        //books.setCover(cover);
-        books.setDescription(description);
-        booksRepository.save(books);
-        return "redirect:/";
+    @PostMapping("/book/edit/{book_id}")
+    public String updateBook(@PathVariable("book_id") long book_id,
+                             @ModelAttribute("book") @Validated Books book,
+                             //BindingResult result,
+                             @RequestParam("coverImageFile") MultipartFile coverImageFile,
+                             @RequestParam("pdfFile") MultipartFile pdfFile,
+                             @RequestParam("imageURL") String imageURL,
+                             RedirectAttributes redirectAttributes, Model model) throws IOException {
+        Books existingBook = booksRepository.findById(book_id)
+                .orElseThrow(() -> new CustomNotFoundException("Book not found with id " + book_id));
+        BooksCover existCover = booksCoverRepository.findById(book_id)
+                .orElseThrow(() -> new CustomNotFoundException("Cover not found with id " + book_id));
+        BooksPDF existPDF = booksPDFRepository.findById(book_id)
+                .orElseThrow(() -> new CustomNotFoundException("Cover not found with id " + book_id));
+
+        // update book information from the form
+        existingBook.setName(book.getName());
+        existingBook.setAuthor(book.getAuthor());
+        existingBook.setDescription(book.getDescription());
+
+        // update book cover image
+        if (!coverImageFile.isEmpty()) {
+            String coverImageFileName = StringUtils.cleanPath(coverImageFile.getOriginalFilename());
+
+            if (!coverImageFileName.matches(".*\\.(png|jpg|jpeg|gif)$")) {
+                redirectAttributes.addFlashAttribute("error", "Invalid cover image file type. Only PNG, JPG, JPEG, and GIF files are allowed.");
+                return "redirect:/book-edit/" + book_id;
+            }
+
+            if (coverImageFile != null && !coverImageFile.isEmpty()) {
+                existCover.setData(coverImageFile.getBytes());
+                existCover.setFileName(coverImageFile.getOriginalFilename());
+            } else if (!imageURL.isEmpty()) {
+                existCover.setData(convert(imageURL));
+            } else {
+                existCover.setData(convert("https://clck.ru/33LDY5"));
+            }
+        }
+
+        if (!pdfFile.isEmpty()) {
+            String pdfFileName = StringUtils.cleanPath(pdfFile.getOriginalFilename());
+
+            if (!pdfFileName.matches(".*\\.pdf$")) {
+                redirectAttributes.addFlashAttribute("error", "Invalid PDF file type. Only PDF files are allowed.");
+                return "redirect:/book-edit/" + book_id;
+            }
+
+            if (pdfFile != null && !pdfFile.isEmpty()) {
+                existPDF.setData(pdfFile.getBytes());
+                existPDF.setFileName(pdfFile.getOriginalFilename());
+            }
+        }
+
+        booksRepository.save(existingBook);
+        booksCoverRepository.save(existCover);
+        booksPDFRepository.save(existPDF);
+
+        return "redirect:/books/{book_id}";
     }
 
     /**
      * Method for Delete Book
      */
     @PreAuthorize("hasAuthority('ADMIN')")
-    @PostMapping("/books/{book_id}/remove")
-    public String bookDeletePost(@PathVariable(value = "book_id") long book_id) {
+    @PostMapping("/book/remove/{book_id}")
+    public String bookDeletePost(@PathVariable(value = "book_id") long book_id, Principal principal, HttpServletRequest request) {
+        User user = userService.getUserByPrincipal(principal);
+        Books book = booksRepository.findById(book_id).orElseThrow();
+        if (user.getBooks_list().contains(book)) {
+            user.getBooks_list().remove(book);
+        }
+        userRepository.save(user);
         Books books = booksRepository.findById(book_id).orElseThrow();
-
+        booksPDFRepository.deleteById(book_id);
+        booksCoverRepository.deleteById(book_id);
         booksRepository.delete(books);
         return "redirect:/";
     }
@@ -273,11 +316,7 @@ public class BooksController {
 
         ByteArrayResource resource = new ByteArrayResource(bookPdf.getData());
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + bookPdf.getFileName())
-                .contentLength(bookPdf.getData().length)
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(resource);
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + bookPdf.getFileName()).contentLength(bookPdf.getData().length).contentType(MediaType.APPLICATION_PDF).body(resource);
     }
 
     @GetMapping("/read/{id}")
@@ -292,19 +331,15 @@ public class BooksController {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "inline; filename=" + bookPdf.getFileName());
 
-        return ResponseEntity
-                .ok()
-                .headers(headers)
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(new InputStreamResource(bis));
+        return ResponseEntity.ok().headers(headers).contentType(MediaType.APPLICATION_PDF).body(new InputStreamResource(bis));
     }
 
     @GetMapping("/image/{id}")
     public ResponseEntity<byte[]> getImage(@PathVariable Long id) throws IOException, ChangeSetPersister.NotFoundException {
         BooksCover book = booksCoverRepository.findById(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
+
         byte[] image = book.getData();
         final HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.IMAGE_PNG);
         headers.setContentType(MediaType.IMAGE_PNG);
         return new ResponseEntity<>(image, headers, HttpStatus.OK);
     }
