@@ -12,4 +12,5 @@ public interface BooksCoverRepository extends JpaRepository<BooksCover, Long> {
     @Modifying
     @Query(value = "CREATE TEMPORARY TABLE temp_book_cover_image AS (SELECT id, 'data' FROM bookscovers)", nativeQuery = true)
     void createTempTable();
+    BooksCover deleteByFileName(String name);
 }

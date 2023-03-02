@@ -29,7 +29,7 @@
                     <div class="col ">
                         <div class="card h-100">
                             <a th:href="'/books/' + ${el.book_id}">
-                                <img th:src="@{/image/{id}(id=${el.book_id})}" width="500" height="300" th:href="'/books/' + ${el.book_id}"
+                                <img th:src="@{/book_covers/{id}(id=${el.book_id + '.png'})}" width="500" height="300" th:href="'/books/' + ${el.book_id}"
                                      class="card-img-top" alt="...">
                             </a>
                             <div class="card-footer" style="max-height: 50px; word-wrap: break-word;">

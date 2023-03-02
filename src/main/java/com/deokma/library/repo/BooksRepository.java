@@ -13,5 +13,6 @@ import java.util.List;
  */
 public interface BooksRepository extends CrudRepository<Books, Long> {
     List<Books> findByName(String name);
+    //void deleteBooksByBook_id(long id);
 
 }

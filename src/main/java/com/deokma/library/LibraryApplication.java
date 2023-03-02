@@ -1,5 +1,6 @@
 package com.deokma.library;
 
+import com.deokma.library.gui.LibraryApplicationWindow;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -7,6 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import javax.sql.DataSource;
+import javax.swing.*;
 import java.sql.*;
 
 @SpringBootApplication
@@ -21,6 +23,12 @@ public class LibraryApplication {
     private String password;
 
     public static void main(String[] args) {
+//        SwingUtilities.invokeLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                new LibraryApplicationWindow();
+//            }
+//        });
         SpringApplication.run(LibraryApplication.class, args);
     }
 

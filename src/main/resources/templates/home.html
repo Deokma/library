@@ -40,10 +40,15 @@
                                     <!--                                    https://clck.ru/33LDY5-->
                                     <!--                                    <img th:src="@{/image/0}" width="500"-->
                                     <!--                                         height="300" class="card-img-top img-responsive">-->
-                                    <img th:src="@{/image/{id}(id=${el.book_id})}" alt=""
+
+                                    <img th:src="@{/book_covers/{id}(id=${el.book_id + '.png'})}"
+                                         alt="image error"
                                          width="500" height="300"
                                          th:href="'/books/' + ${el.book_id}"
                                          class="card-img-top img-responsive">
+
+
+
                                 </a>
                             </div>
                         </div>

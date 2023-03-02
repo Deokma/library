@@ -15,10 +15,10 @@ public class BooksPDF {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "file_name")
     private String fileName;
-    @Lob
-    private byte[] data;
-    //@OneToOne(mappedBy = "bookspdf")
-    // private Books books;
+    @Column(name = "origin_file_name")
+    private String originalFileName;
+
 
 }

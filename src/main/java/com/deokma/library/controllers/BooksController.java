@@ -1,7 +1,6 @@
 package com.deokma.library.controllers;
 
 import com.deokma.library.exceptions.CustomNotFoundException;
-import com.deokma.library.exceptions.ResourceNotFoundException;
 import com.deokma.library.models.Books;
 import com.deokma.library.models.BooksCover;
 import com.deokma.library.models.BooksPDF;
@@ -10,18 +9,14 @@ import com.deokma.library.repo.BooksCoverRepository;
 import com.deokma.library.repo.BooksPdfRepository;
 import com.deokma.library.repo.BooksRepository;
 import com.deokma.library.repo.UserRepository;
+import com.deokma.library.services.BooksCoverService;
 import com.deokma.library.services.BooksPDFService;
 import com.deokma.library.services.UserService;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
-import org.springframework.data.crossstore.ChangeSetPersister;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,16 +26,15 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Denis Popolamov
@@ -50,15 +44,17 @@ public class BooksController {
 
     private final BooksRepository booksRepository;
     private final BooksCoverRepository booksCoverRepository;
+    private final BooksCoverService booksCoverService;
     private final BooksPDFService bookPdfService;
     private final BooksPdfRepository booksPDFRepository;
     //private final UserBooksRepository userBooksRepository;
     private final UserRepository userRepository;
     private final UserService userService;
 
-    public BooksController(BooksRepository booksRepository, BooksCoverRepository booksCoverRepository, BooksPDFService bookPdfService, BooksPdfRepository booksPDFRepository, UserRepository userRepository, UserService userService) {
+    public BooksController(BooksRepository booksRepository, BooksCoverRepository booksCoverRepository, BooksCoverService booksCoverService, BooksPDFService bookPdfService, BooksPdfRepository booksPDFRepository, UserRepository userRepository, UserService userService) {
         this.booksRepository = booksRepository;
         this.booksCoverRepository = booksCoverRepository;
+        this.booksCoverService = booksCoverService;
         this.bookPdfService = bookPdfService;
         this.booksPDFRepository = booksPDFRepository;
         //this.userBooksRepository = userBooksRepository;
@@ -83,7 +79,9 @@ public class BooksController {
     }
 
     @Value("${file.upload-books-dir}")
-    private String uploadDirectory;
+    private String uploadBookDirectory;
+    @Value("${file.upload-book-covers-dir}")
+    private String uploadBookCoversDirectory;
 
     /**
      * Method for Add Book
@@ -100,7 +98,6 @@ public class BooksController {
                                @RequestParam("book_file") MultipartFile file,
                                @RequestParam("bookCover") MultipartFile bookCoverFile,
                                @RequestParam("imageURL") String imageURL, Model model) {
-        //Books books = new Books(name, author, cover, view_link, download_link, description);
         Books book = new Books();
         try {
             if (!file.getOriginalFilename().matches(".*\\.pdf$")) {
@@ -111,29 +108,57 @@ public class BooksController {
             }
             book.setName(name);
             book.setAuthor(author);
-            //book.setCover(cover);
             book.setDescription(description);
 
             booksRepository.save(book);
 
-            BooksCover booksCover = new BooksCover();
-            booksCover.setId(book.getBook_id());
-            booksCover.setFileName(bookCoverFile.getOriginalFilename());
+
             if (!bookCoverFile.isEmpty()) {
-                booksCover.setData(bookCoverFile.getBytes());
-            } else if (!imageURL.isEmpty()) {
-                booksCover.setData(convert(imageURL));
-            } else {
-                booksCover.setData(convert("https://clck.ru/33LDY5"));
+                BooksCover booksCover = new BooksCover();
+                booksCover.setId(book.getBook_id());
+                booksCover.setFileName(book.getBook_id().toString());
+                booksCover.setOriginalFileName(bookCoverFile.getOriginalFilename());
+
+                // Save the image file to the "resources/book_covers" directory
+                // String fileBookCoverName = StringUtils.cleanPath(bookCoverFile.getOriginalFilename());
+                File fileToSaveBookCover = new File(uploadBookCoversDirectory + book.getBook_id().toString() + ".png");
+                FileOutputStream fosBookCover = new FileOutputStream(fileToSaveBookCover);
+                fosBookCover.write(bookCoverFile.getBytes());
+                fosBookCover.close();
+
+                // Cache the image file
+                Cache cache = CacheBuilder.newBuilder()
+                        .maximumSize(100)
+                        .expireAfterAccess(1, TimeUnit.HOURS)
+                        .build();
+                String fileContents = new String(Files.readAllBytes(fileToSaveBookCover.toPath()), StandardCharsets.UTF_8);
+                cache.put(book.getBook_id().toString(), fileContents);
+
+
+                booksCoverRepository.save(booksCover);
             }
-            booksCoverRepository.save(booksCover);
+//            } else if (!imageURL.isEmpty()) {
+//                booksCover.setData(convert(imageURL));
+//            } else {
+//                booksCover.setData(convert("https://clck.ru/33LDY5"));
+//            }
 
-            BooksPDF books_pdf = new BooksPDF();
-            books_pdf.setId(book.getBook_id());
-            books_pdf.setFileName(file.getOriginalFilename());
-            books_pdf.setData(file.getBytes());
-            booksPDFRepository.save(books_pdf);
 
+            if (!bookCoverFile.isEmpty()) {
+                BooksPDF books_pdf = new BooksPDF();
+                books_pdf.setId(book.getBook_id());
+                books_pdf.setFileName(book.getBook_id().toString());
+                books_pdf.setOriginalFileName(file.getOriginalFilename());
+
+                // Save the PDF file to the "resources/books" directory
+                //String fileBookName = StringUtils.cleanPath(file.getOriginalFilename());
+                File fileToSaveBook = new File(uploadBookDirectory + book.getBook_id().toString() + ".pdf");
+                FileOutputStream fosBook = new FileOutputStream(fileToSaveBook);
+                fosBook.write(file.getBytes());
+                fosBook.close();
+
+                booksPDFRepository.save(books_pdf);
+            }
 
             model.addAttribute("message", "File uploaded successfully! to ");
         } catch (Exception e) {
@@ -144,24 +169,24 @@ public class BooksController {
         return "redirect:/";
     }
 
-    /**
-     * Converter link to file
-     *
-     * @param coverImageUrl
-     * @return
-     * @throws IOException
-     */
-    public static byte[] convert(String coverImageUrl) throws IOException {
-        URL url = new URL(coverImageUrl);
-        ReadableByteChannel rbc = Channels.newChannel(url.openStream());
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        byte[] buffer = new byte[1024];
-        int bytesRead;
-        while ((bytesRead = rbc.read(ByteBuffer.wrap(buffer))) != -1) {
-            baos.write(buffer, 0, bytesRead);
-        }
-        return baos.toByteArray();
-    }
+//    /**
+//     * Converter link to file
+//     *
+//     * @param coverImageUrl
+//     * @return
+//     * @throws IOException
+//     */
+//    public static byte[] convert(String coverImageUrl) throws IOException {
+//        URL url = new URL(coverImageUrl);
+//        ReadableByteChannel rbc = Channels.newChannel(url.openStream());
+//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//        byte[] buffer = new byte[1024];
+//        int bytesRead;
+//        while ((bytesRead = rbc.read(ByteBuffer.wrap(buffer))) != -1) {
+//            baos.write(buffer, 0, bytesRead);
+//        }
+//        return baos.toByteArray();
+//    }
 
     /**
      * Go to Book page
@@ -219,27 +244,38 @@ public class BooksController {
                 return "redirect:/book-edit/" + book_id;
             }
 
-            if (coverImageFile != null && !coverImageFile.isEmpty()) {
-                existCover.setData(coverImageFile.getBytes());
-                existCover.setFileName(coverImageFile.getOriginalFilename());
-            } else if (!imageURL.isEmpty()) {
-                existCover.setData(convert(imageURL));
-            } else {
-                existCover.setData(convert("https://clck.ru/33LDY5"));
+            // Получаем полный путь до файла в директории
+            String fileBooksPath = Paths.get(uploadBookDirectory, existingBook.getBook_id().toString()).toString();
+            File oldBookFile = new File(fileBooksPath);
+
+            // Удаляем старый файл
+            if (oldBookFile.exists()) {
+                oldBookFile.delete();
             }
+
+//            if (!coverImageFile.isEmpty()) {
+//                existCover.setData(coverImageFile.getBytes());
+//                existCover.setFileName(coverImageFile.getOriginalFilename());
+//            } else if (!imageURL.isEmpty()) {
+//                existCover.setData(convert(imageURL));
+//            } else {
+//                existCover.setData(convert("https://clck.ru/33LDY5"));
+//            }
         }
 
         if (!pdfFile.isEmpty()) {
-            String pdfFileName = StringUtils.cleanPath(pdfFile.getOriginalFilename());
+            String pdfFileName = existingBook.getBook_id().toString();
+            String pdfOriginalFileName = StringUtils.cleanPath(pdfFile.getOriginalFilename());
 
-            if (!pdfFileName.matches(".*\\.pdf$")) {
+            if (!pdfOriginalFileName.matches(".*\\.pdf$")) {
                 redirectAttributes.addFlashAttribute("error", "Invalid PDF file type. Only PDF files are allowed.");
                 return "redirect:/book-edit/" + book_id;
             }
 
-            if (pdfFile != null && !pdfFile.isEmpty()) {
-                existPDF.setData(pdfFile.getBytes());
-                existPDF.setFileName(pdfFile.getOriginalFilename());
+            if (!pdfFile.isEmpty()) {
+                //existPDF.setData(pdfFile.getBytes());
+                existPDF.setOriginalFileName(pdfFile.getOriginalFilename());
+                existPDF.setFileName(book.getBook_id().toString());
             }
         }
 
@@ -260,12 +296,30 @@ public class BooksController {
         Books book = booksRepository.findById(book_id).orElseThrow();
         if (user.getBooks_list().contains(book)) {
             user.getBooks_list().remove(book);
+            userRepository.save(user);
         }
-        userRepository.save(user);
-        Books books = booksRepository.findById(book_id).orElseThrow();
-        booksPDFRepository.deleteById(book_id);
-        booksCoverRepository.deleteById(book_id);
-        booksRepository.delete(books);
+
+        bookPdfService.deleteByFileName(book.getBook_id().toString());
+
+        Path fileBooksPath = Paths.get(uploadBookDirectory, book.getBook_id().toString() + ".pdf");
+        try {
+            Files.delete(fileBooksPath);
+        } catch (IOException e) {
+            // обработка ошибки удаления файла книги
+            System.out.println("Не удалось найти книгу!");
+        }
+
+
+        booksCoverService.deleteByFileName(book.getBook_id().toString());
+        Path fileBooksCoverPath = Paths.get(uploadBookCoversDirectory, book.getBook_id().toString() + ".png");
+        try {
+            Files.delete(fileBooksCoverPath);
+        } catch (IOException e) {
+            // обработка ошибки удаления файла обложки
+            System.out.println("Не удалось найти обложку!");
+        }
+
+        booksRepository.delete(book);
         return "redirect:/";
     }
 
@@ -308,39 +362,49 @@ public class BooksController {
     }
 
     @GetMapping("/download/{id}")
-    public ResponseEntity<Resource> downloadPdf(@PathVariable Long id) throws IOException {
-        BooksPDF bookPdf = bookPdfService.getBookPdfById(id);
-        if (bookPdf == null) {
-            throw new ResourceNotFoundException("Book PDF with id " + id + " not found.");
+    public void downloadBookPDF(@PathVariable Long id, HttpServletResponse response) {
+        try {
+            // Получаем путь к файлу по book_id
+            File file = new File(uploadBookDirectory + id + ".pdf");
+            Path filePath = Paths.get(uploadBookDirectory + file.getName());
+            BooksPDF file_book_name = booksPDFRepository.findById(id).orElseThrow();
+            // Устанавливаем метаданные для ответа
+            response.setContentType("application/pdf");
+            response.addHeader("Content-Disposition", "attachment; filename=" + file_book_name.getOriginalFileName());
+            response.setContentLength((int) Files.size(filePath));
+
+            // Копируем содержимое файла в ответ
+            Files.copy(filePath, response.getOutputStream());
+            response.getOutputStream().flush();
+        } catch (IOException e) {
+            // Обработка ошибок
+            e.printStackTrace();
         }
-
-        ByteArrayResource resource = new ByteArrayResource(bookPdf.getData());
-
-        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + bookPdf.getFileName()).contentLength(bookPdf.getData().length).contentType(MediaType.APPLICATION_PDF).body(resource);
     }
+
 
     @GetMapping("/read/{id}")
-    public ResponseEntity<InputStreamResource> getBookPdf(@PathVariable Long id) throws ResourceNotFoundException {
-        BooksPDF bookPdf = bookPdfService.getBookPdfById(id);
+    public void readPdfFile(@PathVariable Long id, HttpServletResponse response) {
+        try {
 
-        if (bookPdf == null) {
-            throw new ResourceNotFoundException("Book pdf with id: " + id + " not found");
+            // Получаем содержимое файла
+            File file = new File(uploadBookDirectory + id + ".pdf");
+            FileInputStream fileInputStream = new FileInputStream(file);
+            byte[] data = new byte[(int) file.length()];
+            fileInputStream.read(data);
+            fileInputStream.close();
+
+            // Определяем MIME-тип файла
+            response.setContentType("application/pdf");
+
+            // Устанавливаем заголовок с именем файла
+            response.setHeader("Content-disposition", "inline; filename=" + file.getName());
+
+            // Записываем содержимое файла в выходной поток
+            response.getOutputStream().write(data);
+            response.getOutputStream().flush();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        ByteArrayInputStream bis = new ByteArrayInputStream(bookPdf.getData());
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "inline; filename=" + bookPdf.getFileName());
-
-        return ResponseEntity.ok().headers(headers).contentType(MediaType.APPLICATION_PDF).body(new InputStreamResource(bis));
-    }
-
-    @GetMapping("/image/{id}")
-    public ResponseEntity<byte[]> getImage(@PathVariable Long id) throws IOException, ChangeSetPersister.NotFoundException {
-        BooksCover book = booksCoverRepository.findById(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
-
-        byte[] image = book.getData();
-        final HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.IMAGE_PNG);
-        return new ResponseEntity<>(image, headers, HttpStatus.OK);
     }
 }
