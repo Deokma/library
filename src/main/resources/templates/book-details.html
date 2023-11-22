@@ -24,6 +24,28 @@
                             <h4 th:text="${el.name}" class="text-start px-4 p-1 text-light fw-bold"></h4>
                             <h6 th:text="'Author: ' + ${el.author}" class="text-start px-4 text-light fw-norm"></h6>
                             <div class="p-2 px-1">
+                            <h5 th:text="'⭐' +${el.averageRating} + ' ('+${el.ratingCount}+')'" class="text-start px-4 text-light fw-norm"></h5>
+                                <form th:action="'/rate/' + ${el.book_id}" method="post" id="ratingForm">
+                                    <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+
+                                    <!-- Use a Thymeleaf loop to generate rating buttons from 1 to 5 -->
+                                    <div class="btn-group" role="group" aria-label="Rating Buttons">
+                                        <button type="button" class="btn btn-light" onclick="setRating(1)">1</button>
+                                        <button type="button" class="btn btn-light" onclick="setRating(2)">2</button>
+                                        <button type="button" class="btn btn-light" onclick="setRating(3)">3</button>
+                                        <button type="button" class="btn btn-light" onclick="setRating(4)">4</button>
+                                        <button type="button" class="btn btn-light" onclick="setRating(5)">5</button>
+                                    </div>
+
+                                    <!-- Hidden input to store the selected rating -->
+                                    <input type="hidden" name="rating" id="selectedRating">
+
+                                </form></div>
+                            <div class="container mt-4">
+                                <h5 class="text-light fw-bold">Rate this book:</h5>
+
+                            </div>
+                            <div class="p-2 px-1">
                                 <div class="p-1">
                                     <a class="btn btn-light ms-3" th:href="'/read/' + ${el.book_id}">Read</a>
                                     <a class="btn btn-light ms-3" th:href="'/download/'+ ${el.book_id}">Download</a>
@@ -61,8 +83,16 @@
             </div>
         </div>
     </div>
-</div>
-</div>
+
+    <!-- Rating Section -->
+
+
 </div>
 </body>
+<script>
+    function setRating(rating) {
+        document.getElementById('selectedRating').value = rating;
+        document.getElementById('ratingForm').submit(); // Автоматическая отправка формы
+    }
+</script>
 </html>
