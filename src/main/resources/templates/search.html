@@ -1,0 +1,54 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- Add your head content here -->
+</head>
+<body class="bg-secondary">
+<header th:insert="~{components/header :: header}"></header>
+
+<div class="container">
+    <div class="secondary alert-info mt-2">
+        <div class="row row-cols-1 row-cols-md-5 g-4">
+            <div th:each="el : ${books}">
+                <div class="col ">
+                    <div class="card h-100">
+                        <div class="position-relative">
+                            <form th:if="${!usersession.getBooks_list().contains(el)}" class="position-absolute"
+                                  th:action="'/user/'+ ${el.book_id} + '/atu'" method="post">
+                                <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                                <input type="submit" value="🤍" class="btn" style="font-size: larger">
+                            </form>
+                            <form th:unless="${!usersession.getBooks_list().contains(el)}" class="position-absolute"
+                                  th:action="'/user/' + ${el.book_id} + '/dfu'" method="post">
+                                <input type="hidden" name="_csrf" th:value="${_csrf.token}">
+                                <input type="submit" value="❤" class="btn" style="font-size: larger">
+                            </form>
+                            <div>
+                                <a th:href="'/books/' + ${el.book_id}">
+                                    <!--                                    https://clck.ru/33LDY5-->
+                                    <!--                                    <img th:src="@{/image/0}" width="500"-->
+                                    <!--                                         height="300" class="card-img-top img-responsive">-->
+                                    <img th:src="@{~/book_covers/{id}(id=${el.book_id + '.png'})}"
+                                         alt="image error"
+                                         width="500" height="300"
+                                         th:href="'/books/' + ${el.book_id}"
+                                         class="card-img-top img-responsive">
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a th:href="'/books/' + ${el.book_id}" class="text-decoration-none"
+                               style="max-height: 100px">
+                                <h5 th:text="${el.name}" class="text-center text-dark"></h5>
+                            </a>
+                            <h6 th:text="${el.author}" class="text-muted" style="max-height: 40px "></h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:insert="~{components/footer :: footer}"></footer>
+</body>
+</html>
