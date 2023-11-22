@@ -13,6 +13,7 @@
 <body class="bg-secondary">
 
 <header th:insert="~{components/header :: header}"></header>
+
 <!--<div id="element">-->
 <!--    <p>hghfty</p>-->
 <!--    <button id="toggle-button">Toggle Theme</button>-->
@@ -40,15 +41,11 @@
                                     <!--                                    https://clck.ru/33LDY5-->
                                     <!--                                    <img th:src="@{/image/0}" width="500"-->
                                     <!--                                         height="300" class="card-img-top img-responsive">-->
-
-                                    <img th:src="@{/book_covers/{id}(id=${el.book_id + '.png'})}"
+                                    <img th:src="@{~/book_covers/{id}(id=${el.book_id + '.png'})}"
                                          alt="image error"
                                          width="500" height="300"
                                          th:href="'/books/' + ${el.book_id}"
                                          class="card-img-top img-responsive">
-
-
-
                                 </a>
                             </div>
                         </div>

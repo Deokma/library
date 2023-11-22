@@ -2,7 +2,6 @@ package com.deokma.library.controllers;
 
 import com.deokma.library.models.Books;
 import com.deokma.library.models.BooksCover;
-import com.deokma.library.models.User;
 import com.deokma.library.repo.BooksCoverRepository;
 import com.deokma.library.repo.BooksRepository;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +35,7 @@ public class MainController {
         model.addAttribute("books", books);
         model.addAttribute("cover", covers);
 
-         //booksCoverRepository.createTempTable();
+        //booksCoverRepository.createTempTable();
 
         return "home";
     }

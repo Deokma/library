@@ -1,6 +1,5 @@
 package com.deokma.library;
 
-import com.deokma.library.gui.LibraryApplicationWindow;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -8,8 +7,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import javax.sql.DataSource;
-import javax.swing.*;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 @SpringBootApplication
 public class LibraryApplication {

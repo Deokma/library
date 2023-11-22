@@ -25,7 +25,12 @@ public class Books {
     private String author;
     @NotEmpty(message = "Name should not be empty")
     private String name;
+    @Column(length = 5000)
     private String description;
+    private Float averageRating = 0.0f;
+
+    private Integer issueYear;
+    private Integer ratingCount = 0;
     @ManyToMany(mappedBy = "books_list")
     private Set<User> users = new HashSet<>();
 
@@ -33,13 +38,15 @@ public class Books {
     @ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
     @JoinColumn
     private User user;
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
+    private Set<UserBooksRating> userBookRatings = new HashSet<>();
 
 //    @Transient
 //    @OneToOne(cascade = CascadeType.ALL)
 //    @JoinColumn(name = "book_id", referencedColumnName = "id")
 //    private BooksPDF bookspdf;
 
-//    @Transient
+    //    @Transient
 //    @OneToOne(cascade = CascadeType.ALL)
 //    @JoinColumn(name = "book_id", referencedColumnName = "id")
 //    private BooksCover bookscover;
