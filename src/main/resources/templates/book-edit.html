@@ -1,9 +1,8 @@
-<!doctype html>
+<!DOCTYPE html>
 <html th:each="ed : ${book}" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="icon" href="../static/images/icons/books-icon-light-theme.png">
     <title th:text="${book.name}"></title>
@@ -15,74 +14,56 @@
         <div>
             <div class="row row-cols-1 row-cols-md-2 g-1 bg-dark">
                 <div class="col-lg-4">
-                    <img th:src="@{/book_covers/{id}(id=${book.book_id + '.png'})}" width="300" height="600"
-                         class="card-img-top" alt="...">
+                    <img th:src="@{/book_covers/{id}(id=${book.book_id + '.png'})}" width="300" height="600" class="card-img-top" alt="...">
                 </div>
                 <div class=" col-lg-8 container position-relative">
-                    <form th:object="${book}" th:action="@{/book/edit/{id}(id=${book.book_id})}" method="post"
-                          enctype="multipart/form-data">
+                    <form th:object="${book}" th:action="@{/book/edit/{id}(id=${book.book_id})}" method="post" enctype="multipart/form-data">
                         <input type="hidden" th:field="*{book_id}"/>
                         <div class="col-md-8"><br>
                             <h5 class="text-light">Name:</h5>
-                            <input type="text" id="name" th:field="*{name}" name="name" placeholder="Enter name"
-                                   class="form-control text-start px-6 top-1 text-dark fw-bold mb-2">
+                            <input type="text" id="name" th:field="*{name}" name="name" placeholder="Enter name" class="form-control text-start px-6 top-1 text-dark fw-bold mb-2">
                             <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
                         </div>
                         <div class="input-group-sm col-md-4 col-md-offset-3">
                             <h5 class="text-light">Author:</h5>
-                            <input type="text" id="author" th:field="*{author}" name="author"
-                                   aria-describedby="inputGroup-sizing-sm"
-                                   placeholder="Enter author"
-                                   class="form-control">
+                            <input type="text" id="author" th:field="*{author}" name="author" aria-describedby="inputGroup-sizing-sm" placeholder="Enter author" class="form-control">
                             <span th:if="${#fields.hasErrors('author')}" th:errors="*{author}"></span>
                         </div>
                         <div class="input-group-sm col-md-4 col-md-offset-3">
                             <h5 class="text-light">Year:</h5>
-                            <input type="text" id="issueYear" th:field="*{issueYear}" name="Year"
-                                   aria-describedby="inputGroup-sizing-sm"
-                                   placeholder="Enter Year"
-                                   class="form-control">
+                            <input type="text" id="issueYear" th:field="*{issueYear}" name="Year" aria-describedby="inputGroup-sizing-sm" placeholder="Enter Year" class="form-control">
                             <span th:if="${#fields.hasErrors('issueYear')}" th:errors="*{issueYear}"></span>
                         </div>
                         <br>
                         <h5 class="px-2 text-light fw-bold">Description:</h5>
-                        <textarea id="description" th:field="*{description}" name="description"
-                                  style="resize: none;height: 200px"
-                                  placeholder="Enter description"
-                                  class="form-control"/>
+                        <textarea id="description" th:field="*{description}" name="description" style="resize: none;height: 200px" placeholder="Enter description" class="form-control"/>
                         <span th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></span>
                         <h5 class="text-light">Cover:</h5>
-                        <!--тут-->
-                        <select id="file-type-select" class="form-select form-select-sm"
-                                aria-label=".form-select-sm example">
+                        <select id="file-type-select" class="form-select form-select-sm" aria-label=".form-select-sm example">
                             <option value="file">File</option>
                             <option value="link">Link</option>
                         </select>
                         <div id="file-input">
                             <label>File:</label>
-                            <input type="file" id="coverImage" name="coverImageFile" class="form-control"
-                                   accept=".jpg,.jpeg,.png,.web"
-                            >
+                            <input type="file" id="coverImage" name="coverImageFile" class="form-control" accept=".jpg,.jpeg,.png,.web">
                         </div>
                         <div id="link-input" style="display:none;">
                             <label>Link:</label>
-                            <input type="text" name="imageURL" class="form-control">
+                            <input type="text" id="imageURL" name="imageURL" class="form-control">
                         </div>
                         <br>
                         <div>
-                            <h5 class="text-light">Book File:</h5>
-                            <input type="file" name="pdfFile" id="pdfFile" placeholder="Book File"
-                                   class="form-control" accept=".pdf">
-                            <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
-                            <br>
+                            <h5 class="text-light">Genres:</h5>
+                            <select name="genres" id="genreSelect" multiple="multiple" class="form-control js-example-basic-multiple">
+                                <!-- Используйте Thymeleaf для генерации опций на основе данных из базы -->
+                                <option th:each="genre : ${genres}" th:value="${genre.genre_id}" th:text="${genre.name}" th:selected="${book.genres.contains(genre)}"></option>
+                            </select>
                         </div>
 
                         <div class="container text-center">
                             <div class="row justify-content-center">
                                 <div class="col-4">
-                                    <form method="post" th:action="'/book/edit/' + ${book.book_id}">
-                                        <button type="submit" class="btn btn-success btn-lg">Update</button>
-                                    </form>
+                                    <button type="submit" class="btn btn-success btn-lg">Update</button>
                                 </div>
                                 <div class="col-4">
                                     <form method="post" th:action="'/book/remove/' + ${book.book_id}">
@@ -99,5 +80,43 @@
     </div>
 </div>
 <footer th:insert="~{components/footer :: footer}"></footer>
+<script>
+    var fileInput = document.getElementById("file-input");
+    var linkInput = document.getElementById("link-input");
+    var fileTypeSelect = document.getElementById("file-type-select");
+
+    fileTypeSelect.addEventListener("change", function () {
+        if (this.value === "file") {
+            fileInput.style.display = "block";
+            linkInput.style.display = "none";
+        } else {
+            fileInput.style.display = "none";
+            linkInput.style.display = "block";
+        }
+    });
+</script>
+<script>
+    $(document).ready(function() {
+        // Инициализация Select2 для элемента с классом js-example-basic-multiple
+        $('.js-example-basic-multiple').select2();
+    });
+</script>
+<!-- Подключение jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<!-- Подключение Select2 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Инициализация Select2 для элемента с классом js-example-basic-multiple
+        $('.js-example-basic-multiple').select2();
+
+        // Установка выбранных значений после загрузки страницы
+        var selectedGenres = [/* здесь добавьте ID выбранных жанров в массив */];
+        $('#genreSelect').val(selectedGenres).trigger('change');
+    });
+</script>
+
 </body>
 </html>

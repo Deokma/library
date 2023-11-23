@@ -59,12 +59,19 @@
 <!--                    </form>-->
 
                     <br>
-                    <div>
+                    <!--<div>
                         <h5 class="text-light">Book File:</h5>
                         <input type="file" name="book_file" placeholder="Book File"
                                class="form-control">
                         <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
                         <br>
+                    </div>-->
+                    <div>
+                        <h5 class="text-light">Genres:</h5>
+                        <select name="genres" id="genreSelect" multiple="multiple" class="form-control js-example-basic-multiple">
+                            <!-- Используйте Thymeleaf для генерации опций на основе данных из базы -->
+                            <option th:each="genre : ${genres}" th:value="${genre.genre_id}" th:text="${genre.name}"></option>
+                        </select>
                     </div>
                     <div class="container text-center">
                         <div class="row justify-content-center">
@@ -97,5 +104,18 @@
         }
     });
 </script>
+<!-- Подключение jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<!-- Подключение Select2 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Инициализация Select2 для элемента с классом js-example-basic-multiple
+        $('.js-example-basic-multiple').select2();
+    });
+</script>
+
 </body>
 </html>

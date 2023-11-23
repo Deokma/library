@@ -5,6 +5,7 @@ import com.deokma.library.models.enums.Role;
 import com.deokma.library.repo.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -93,6 +94,10 @@ public class UserService {
         // для поиска соответствующего объекта User в базе данных
         // и вернуть его из метода
         // например, используя UserRepository
+        return userRepository.findByUsername(username);
+    }
+
+    public User findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 }

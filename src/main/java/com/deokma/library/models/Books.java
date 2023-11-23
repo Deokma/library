@@ -40,6 +40,12 @@ public class Books {
     private User user;
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
     private Set<UserBooksRating> userBookRatings = new HashSet<>();
+    @ManyToMany
+    @JoinTable(
+            name = "book_genre",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "genre_id"))
+    private Set<Genre> genres = new HashSet<>();
 
 //    @Transient
 //    @OneToOne(cascade = CascadeType.ALL)

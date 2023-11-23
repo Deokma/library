@@ -3,10 +3,7 @@ package com.deokma.library.controllers;
 import com.deokma.library.exceptions.CustomNotFoundException;
 import com.deokma.library.models.*;
 import com.deokma.library.repo.*;
-import com.deokma.library.services.BooksCoverService;
-import com.deokma.library.services.BooksPDFService;
-import com.deokma.library.services.BooksService;
-import com.deokma.library.services.UserService;
+import com.deokma.library.services.*;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,11 +29,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author Denis Popolamov
@@ -45,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 public class BooksController {
 
     private final BooksRepository booksRepository;
+    private final GenreRepository genreRepository;
     private final BooksCoverRepository booksCoverRepository;
     private final BooksCoverService booksCoverService;
     private final BooksPDFService bookPdfService;
@@ -53,11 +49,13 @@ public class BooksController {
     //private final UserBooksRepository userBooksRepository;
     private final UserRepository userRepository;
     private final UserService userService;
+    private final GenreService genreService;
     @Autowired
     private UserBooksRatingRepository userBooksRatingRepository;
 
-    public BooksController(BooksRepository booksRepository, BooksCoverRepository booksCoverRepository, BooksCoverService booksCoverService, BooksPDFService bookPdfService, BooksPdfRepository booksPDFRepository, BooksService booksService, UserRepository userRepository, UserService userService) {
+    public BooksController(BooksRepository booksRepository, GenreRepository genreRepository, BooksCoverRepository booksCoverRepository, BooksCoverService booksCoverService, BooksPDFService bookPdfService, BooksPdfRepository booksPDFRepository, BooksService booksService, UserRepository userRepository, UserService userService, GenreService genreService) {
         this.booksRepository = booksRepository;
+        this.genreRepository = genreRepository;
         this.booksCoverRepository = booksCoverRepository;
         this.booksCoverService = booksCoverService;
         this.bookPdfService = bookPdfService;
@@ -66,6 +64,7 @@ public class BooksController {
         //this.userBooksRepository = userBooksRepository;
         this.userRepository = userRepository;
         this.userService = userService;
+        this.genreService = genreService;
     }
 
 //    @RequestMapping(value = "/books", method = RequestMethod.GET)
@@ -80,7 +79,13 @@ public class BooksController {
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/books/add")
-    public String booksAdd() {
+    public String booksAdd(Model model) {
+
+
+
+        List<Genre> genres = genreService.getAllGenres(); // предполагается, что у вас есть метод для получения всех жанров из сервиса
+
+        model.addAttribute("genres", genres);
         return "books-add";
     }
 
@@ -102,14 +107,11 @@ public class BooksController {
                                @RequestParam String author,
                                @RequestParam Integer issueYear,
                                @RequestParam String description,
-            /* @RequestParam(value = "book_file", required = false) MultipartFile file,*/
                                @RequestParam(value = "bookCover", required = false) MultipartFile bookCoverFile,
-            /* @RequestParam("imageURL") String imageURL,*/ Model model) {
+                               @RequestParam(value = "genres", required = false) List<Long> genreIds,
+                               Model model) {
         Books book = new Books();
         try {
-            /*if (!file.getOriginalFilename().matches(".*\\.pdf$")) {
-                throw new Exception("Invalid file type. Only PDF files are allowed.");
-            }*/
             if (!bookCoverFile.getOriginalFilename().matches(".*\\.(png|jpg|jpeg)$")) {
                 throw new Exception("Invalid file type. Only PNG files are allowed.");
             }
@@ -118,8 +120,15 @@ public class BooksController {
             book.setIssueYear(issueYear);
             book.setDescription(description);
 
+            if (genreIds != null) {
+                Set<Genre> selectedGenres = genreIds.stream()
+                        .map(genreId -> genreRepository.findById(genreId).orElse(null))
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toSet());
+                book.setGenres(selectedGenres);
+            }
+            model.addAttribute("genres", genreRepository.findAll());
             booksRepository.save(book);
-
 
             if (!bookCoverFile.isEmpty()) {
                 BooksCover booksCover = new BooksCover();
@@ -128,7 +137,6 @@ public class BooksController {
                 booksCover.setOriginalFileName(bookCoverFile.getOriginalFilename());
 
                 // Save the image file to the "resources/book_covers" directory
-                // String fileBookCoverName = StringUtils.cleanPath(bookCoverFile.getOriginalFilename());
                 File fileToSaveBookCover = new File(uploadBookCoversDirectory + book.getBook_id().toString() + ".png");
                 FileOutputStream fosBookCover = new FileOutputStream(fileToSaveBookCover);
                 fosBookCover.write(bookCoverFile.getBytes());
@@ -142,29 +150,10 @@ public class BooksController {
                 String fileContents = new String(Files.readAllBytes(fileToSaveBookCover.toPath()), StandardCharsets.UTF_8);
                 cache.put(book.getBook_id().toString(), fileContents);
 
-
                 booksCoverRepository.save(booksCover);
             }
 
-            /*if (!file.isEmpty()) {
-                BooksPDF books_pdf = new BooksPDF();
-                books_pdf.setId(book.getBook_id());
-                books_pdf.setFileName(book.getBook_id().toString());
-                books_pdf.setOriginalFileName(file.getOriginalFilename());
-
-                // Save the PDF file to the "resources/books" directory
-                //String fileBookName = StringUtils.cleanPath(file.getOriginalFilename());
-                File fileToSaveBook = new File(uploadBookDirectory + book.getBook_id().toString() + ".pdf");
-                FileOutputStream fosBook = new FileOutputStream(fileToSaveBook);
-                fosBook.write(file.getBytes());
-                fosBook.close();
-
-                booksPDFRepository.save(books_pdf);
-            } else{
-                bookCoverFile = null;
-            }*/
-
-            model.addAttribute("message", "File uploaded successfully! to ");
+            model.addAttribute("message", "File uploaded successfully!");
         } catch (Exception e) {
             model.addAttribute("message", "File upload failed! " + e.getMessage());
             return "redirect:/books/add";
@@ -172,6 +161,7 @@ public class BooksController {
 
         return "redirect:/";
     }
+
 
 //    /**
 //     * Converter link to file
@@ -213,7 +203,13 @@ public class BooksController {
         Books book = booksRepository.findById(book_id)
                 .orElseThrow(() -> new CustomNotFoundException("Book not found with id " + book_id));
 
+        // Загрузите все жанры из базы данных
+        Iterable<Genre> genres = genreRepository.findAll();
+
+        // Передайте жанры в модель
+        model.addAttribute("genres", genres);
         model.addAttribute("book", book);
+
         return "book-edit";
     }
 
@@ -224,22 +220,31 @@ public class BooksController {
                              @ModelAttribute("book") @Validated Books book,
                              //BindingResult result,
                              @RequestParam("coverImageFile") MultipartFile coverImageFile,
-                             @RequestParam("pdfFile") MultipartFile pdfFile,
-                             @RequestParam("imageURL") String imageURL,
+                             //@RequestParam("pdfFile") MultipartFile pdfFile,
+                             /*@RequestParam("imageURL") String imageURL,*/
+                             @RequestParam(value = "genres", required = false) List<Long> genreIds,
                              RedirectAttributes redirectAttributes, Model model) throws IOException {
+
         Books existingBook = booksRepository.findById(book_id)
                 .orElseThrow(() -> new CustomNotFoundException("Book not found with id " + book_id));
         BooksCover existCover = booksCoverRepository.findById(book_id)
                 .orElseThrow(() -> new CustomNotFoundException("Cover not found with id " + book_id));
-        BooksPDF existPDF = booksPDFRepository.findById(book_id)
-                .orElseThrow(() -> new CustomNotFoundException("Cover not found with id " + book_id));
+        //BooksPDF existPDF = booksPDFRepository.findById(book_id)
+        //        .orElseThrow(() -> new CustomNotFoundException("Cover not found with id " + book_id));
 
         // update book information from the form
         existingBook.setName(book.getName());
         existingBook.setAuthor(book.getAuthor());
         existingBook.setIssueYear(book.getIssueYear());
         existingBook.setDescription(book.getDescription());
-
+        if (genreIds != null) {
+            Set<Genre> selectedGenres = genreIds.stream()
+                    .map(genreId -> genreRepository.findById(genreId).orElse(null))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+            existingBook.setGenres(selectedGenres);
+        }
+        model.addAttribute("genres", genreRepository.findAll());
         // update book cover image
         if (!coverImageFile.isEmpty()) {
             String coverImageFileName = StringUtils.cleanPath(coverImageFile.getOriginalFilename());
@@ -250,45 +255,51 @@ public class BooksController {
             }
 
             // Получаем полный путь до файла в директории
-            String fileBooksPath = Paths.get(uploadBookDirectory, existingBook.getBook_id().toString()).toString();
+         /*   String fileBooksPath = Paths.get(uploadBookDirectory, existingBook.getBook_id().toString()).toString();
             File oldBookFile = new File(fileBooksPath);
 
             // Удаляем старый файл
             if (oldBookFile.exists()) {
                 oldBookFile.delete();
-            }
+            }*/
 
-//            if (!coverImageFile.isEmpty()) {
-//                existCover.setData(coverImageFile.getBytes());
-//                existCover.setFileName(coverImageFile.getOriginalFilename());
-//            } else if (!imageURL.isEmpty()) {
-//                existCover.setData(convert(imageURL));
-//            } else {
-//                existCover.setData(convert("https://clck.ru/33LDY5"));
-//            }
+     /*   if (!coverImageFile.isEmpty()) {
+            existCover.setData(coverImageFile.getBytes());
+            existCover.setFileName(coverImageFile.getOriginalFilename());
+        } else if (!imageURL.isEmpty()) {
+            existCover.setData(convert(imageURL));
+        } else {
+            existCover.setData(convert("https://clck.ru/33LDY5"));
+        }
+        }*/
+        }
+        // Закомментирована секция, относящаяся к PDF-файлу
+    /*
+    if (!pdfFile.isEmpty()) {
+        String pdfFileName = existingBook.getBook_id().toString();
+        String pdfOriginalFileName = StringUtils.cleanPath(pdfFile.getOriginalFilename());
+
+        if (!pdfOriginalFileName.matches(".*\\.pdf$")) {
+            redirectAttributes.addFlashAttribute("error", "Invalid PDF file type. Only PDF files are allowed.");
+            return "redirect:/book-edit/" + book_id;
         }
 
         if (!pdfFile.isEmpty()) {
-            String pdfFileName = existingBook.getBook_id().toString();
-            String pdfOriginalFileName = StringUtils.cleanPath(pdfFile.getOriginalFilename());
-
-            if (!pdfOriginalFileName.matches(".*\\.pdf$")) {
-                redirectAttributes.addFlashAttribute("error", "Invalid PDF file type. Only PDF files are allowed.");
-                return "redirect:/book-edit/" + book_id;
-            }
-
-            if (!pdfFile.isEmpty()) {
-                //existPDF.setData(pdfFile.getBytes());
-                existPDF.setOriginalFileName(pdfFile.getOriginalFilename());
-                existPDF.setFileName(book.getBook_id().toString());
-            }
+            //existPDF.setData(pdfFile.getBytes());
+            existPDF.setOriginalFileName(pdfFile.getOriginalFilename());
+            existPDF.setFileName(book.getBook_id().toString());
         }
+    }
+    */
+
         booksRepository.save(existingBook);
         booksCoverRepository.save(existCover);
-        booksPDFRepository.save(existPDF);
+        // Закомментирована секция, относящаяся к PDF-файлу
+        //booksPDFRepository.save(existPDF);
 
         return "redirect:/books/{book_id}";
     }
+
 
     /**
      * Method for Delete Book
