@@ -27,43 +27,140 @@
                         <a class="nav-link" href=""></a>
                     </li>
                 </ul>
-                <div class="input-group col d-flex">
-                    <input type="text" class="form-control-sm" placeholder="Search book name" aria-label="Search book name" aria-describedby="button-addon2">
-                    <button class="btn btn-outline-secondary btn-sm" type="button" id="button-addon2">Search</button>
-                </div>
-                <button class="btn btn-outline-secondary btn-sm" type="button" id="criteriaButton" data-bs-toggle="modal" data-bs-target="#criteriaModal">Criteria</button>
+                <form th:action="@{/multicriterial_search}" method="post" enctype="multipart/form-data">
+                    <div class="input-group d-flex align-items-center">
+                        <input type="text" class="form-control-sm" placeholder="Search book name"
+                               aria-label="Search book name" aria-describedby="nameCriteria" name="name">
+                        <button class="btn btn-outline-secondary btn-sm" type="submit">Search</button>
+                        <div class="dropdown btn-outline-secondary">
+                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
+                                    id="criteriaDropdownButton" data-bs-toggle="dropdown" aria-expanded="false"
+                                    data-bs-auto-close="false">
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="criteriaDropdownButton">
+                                <li>
+                                    <div class="accordion-button text-center border d-grid gap-2" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#collapseAuthorCriteria" aria-expanded="false"
+                                            data-bs-dismiss="false">
+                                        Author
+                                    </div>
+                                    <div class="collapse multi-collapse" id="collapseAuthorCriteria">
+                                        <input type="text" class="form-control" id="authorCriteria" name="author">
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="accordion-button btn-block text-center border d-grid gap-2" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#collapseRatingCriteria" aria-expanded="false"
+                                            data-bs-dismiss="false">Rating
+                                    </div>
+                                    <div class="collapse multi-collapse" id="collapseRatingCriteria">
+                                        <input type="number" class="form-control" id="ratingCriteria" name="rating"
+                                               min="1" max="5">
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="accordion-button btn-block text-center border d-grid gap-2" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#collapsePopularityCriteria" aria-expanded="false"
+                                            data-bs-dismiss="false">Popularity
+                                    </div>
+                                    <div class="collapse multi-collapse" id="collapsePopularityCriteria">
+                                        <input TYPE="number" class="form-control" id="popularityCriteria"
+                                               name="popularity" min="0">
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="accordion-button btn-block text-center border d-grid gap-2" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#collapseYearCriteria" aria-expanded="false"
+                                            data-bs-dismiss="false">Year
+                                    </div>
+                                    <div class="collapse multi-collapse" id="collapseYearCriteria">
+                                        <input type="number" class="form-control" id="yearCriteria" name="year"
+                                               min="0">
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="accordion-button btn-block text-center border d-grid gap-2" type="button" data-bs-toggle="collapse"
+                                         data-bs-target="#collapseYearRangeCriteria" aria-expanded="false"
+                                         data-bs-dismiss="false">Year Rance
+                                    </div>
+                                    <div class="collapse multi-collapse" id="collapseYearRangeCriteria">
+                                        <input type="number" class="form-control" id="yearRangeCriteria" name="yearRance"
+                                               min="0">
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="accordion-button btn-block text-center border d-grid gap-2" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#collapsePageCountCriteria" aria-expanded="false"
+                                            data-bs-dismiss="false">Page Count
+                                    </div>
+                                    <div class="collapse multi-collapse" id="collapsePageCountCriteria">
+                                        <input type="number" class="form-control" id="pageCountCriteria"
+                                               name="pageCount" min="0">
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="accordion-button btn-block text-center border d-grid gap-2" type="button" data-bs-toggle="collapse"
+                                         data-bs-target="#collapsePageRanceCriteria" aria-expanded="false"
+                                         data-bs-dismiss="false">Page Rance
+                                    </div>
+                                    <div class="collapse multi-collapse" id="collapsePageRanceCriteria">
+                                        <input type="number" class="form-control" id="pageRanceCriteria"
+                                               name="pageRance" min="0">
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </form>
+
 
                 <!-- Модальное окно Criteria -->
-                <div class="modal fade" id="criteriaModal" tabindex="-1" role="dialog" aria-labelledby="criteriaModalLabel" aria-hidden="true">
+                <div class="modal fade" id="criteriaModal" tabindex="-1" role="dialog"
+                     aria-labelledby="criteriaModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="criteriaModalLabel">Search Criteria</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
                             </div>
                             <div class="modal-body">
                                 <!-- Форма с критериями -->
-                                <form th:action="@{/search}" method="post">
-                                    <div class="mb-3">
-                                        <label for="authorCriteria" class="form-label">Author:</label>
-                                        <input type="text" class="form-control" id="authorCriteria" name="author">
+
+
+                                <!--<div class="mb-3">
+                                    <button class="btn btn-secondary btn-block" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#collapseAuthorCriteria" aria-expanded="false"
+                                            aria-controls="multiCollapseExample2">Author
+                                    </button>
+                                    <div class="collapse multi-collapse" id="collapseAuthorCriteria">
+                                        &lt;!&ndash; <label for="authorCriteria" class="form-label">Author:</label>&ndash;&gt;
+                                        <input type="text" class="form-control" id="authorCriteria"
+                                               name="author">
                                     </div>
-                                    <div class="mb-3">
-                                        <label for="ratingCriteria" class="form-label">Rating:</label>
-                                        <input type="number" class="form-control" id="ratingCriteria" name="rating" min="1" max="5">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="popularityCriteria" class="form-label">Popularity:</label>
-                                        <input TYPE="number" class="form-control" id="popularityCriteria" name="popularity" min="0">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="yearCriteria" class="form-label">Year:</label>
-                                        <input type="number" class="form-control" id="yearCriteria" name="year" min="0">
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Search</button>
-                                </form>
+                                </div>-->
+
+                                <!--                                    <div class="mb-3">-->
+                                <!--                                        <label for="ratingCriteria" class="form-label">Rating:</label>-->
+                                <!--                                        <input type="number" class="form-control" id="ratingCriteria" name="rating"-->
+                                <!--                                               min="1" max="5">-->
+                                <!--                                    </div>-->
+                                <!--                                    <div class="mb-3">-->
+                                <!--                                        <label for="popularityCriteria" class="form-label">Popularity:</label>-->
+                                <!--                                        <input TYPE="number" class="form-control" id="popularityCriteria"-->
+                                <!--                                               name="popularity" min="0">-->
+                                <!--                                    </div>-->
+                                <!--<div class="mb-3">
+                                    <label for="yearCriteria" class="form-label">Year:</label>
+                                    <input type="number" class="form-control" id="yearCriteria" name="year"
+                                           min="0">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="pageCountCriteria" class="form-label">Page Count:</label>
+                                    <input type="number" class="form-control" id="pageCountCriteria"
+                                           name="pageCount" min="0">
+                                </div>-->
+
+                                <!-- <button type="submit" class="btn btn-primary">Search</button>-->
+
                             </div>
                         </div>
                     </div>
@@ -116,32 +213,47 @@
         </div>
     </nav>
 </div>
-<script th:inline="javascript">
-    function submitSearch() {
-        var author = document.getElementById('authorCriteria').value;
-        var rating = document.getElementById('ratingCriteria').value;
-        var popularity = document.getElementById('popularityCriteria').value;
-        var year = document.getElementById('yearCriteria').value;
+<script>
+    var fileInput = document.getElementById("file-input");
+    var linkInput = document.getElementById("link-input");
+    var fileTypeSelect = document.getElementById("file-type-select");
 
-        var criteria = {
-            "author": author,
-            "rating": rating,
-            "popularity": popularity,
-            "year": year
-        };
-
-        fetch('/api/books/search', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(criteria)
-        })
-            .then(response => response.json())
-            .then(data => {
-                // Обработка результата поиска
-                console.log(data);
-            })
-            .catch(error => console.error('Error:', error));
-    }
+    fileTypeSelect.addEventListener("change", function () {
+        if (this.value === "file") {
+            fileInput.style.display = "block";
+            linkInput.style.display = "none";
+        } else {
+            fileInput.style.display = "none";
+            linkInput.style.display = "block";
+        }
+    });
 </script>
+<!-- Подключение jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<!-- Подключение Select2 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Инициализация Select2 для элемента с классом js-example-basic-multiple
+        $('.js-example-basic-multiple').select2();
+    });
+</script>
+<script>
+    // Используйте jQuery для предотвращения закрытия dropdown при нажатии внутри него
+    $('.dropdown-menu').on('click', function (e) {
+        e.stopPropagation();
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+        integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+        crossorigin="anonymous"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>

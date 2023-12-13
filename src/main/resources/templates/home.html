@@ -21,7 +21,8 @@
             <h2>Recommended Books</h2>
             <div class="scrolling-container">
                 <div class="d-flex flex-nowrap">
-                    <div th:each="book, iterStat : ${recommendedBooks}" class="col-lg-2 col-md-3 col-6" style="padding: 5px;">
+                    <div th:each="book, iterStat : ${recommendedBooks}" class="col-lg-2 col-md-3 col-6"
+                         style="padding: 5px;">
                         <div class="card h-100">
                             <div class="position-relative">
                                 <!-- Ваши формы для добавления в избранное -->
@@ -29,14 +30,15 @@
                                     <a th:href="'/books/' + ${book.book_id}">
                                         <img th:src="@{~/book_covers/{id}(id=${book.book_id + '.png'})}"
                                              alt="image error"
-                                             width="500" height="300"
+                                             width="400" height="300"
                                              th:href="'/books/' + ${book.book_id}"
                                              class="card-img-top img-responsive">
                                     </a>
                                 </div>
                             </div>
                             <div class="card-footer">
-                                <a th:href="'/books/' + ${book.book_id}" class="text-decoration-none" style="max-height: 100px">
+                                <a th:href="'/books/' + ${book.book_id}" class="text-decoration-none"
+                                   style="max-height: 100px">
                                     <h5 th:text="${book.name}" class="text-center text-dark"></h5>
                                 </a>
                                 <h6 th:text="${book.author}" class="text-muted" style="max-height: 40px"></h6>
@@ -47,12 +49,10 @@
             </div>
         </div>
 
-
-
-        <div class="row row-cols-1 row-cols-md-5 g-4">
+        <div class="row row-cols-1 row-cols-md-6 g-4">
             <div th:each="el : ${books}">
                 <div class="col">
-                    <div class="card h-100">
+                    <div class="card h-80">
                         <div class="position-relative">
                             <form th:if="${!usersession.getBooks_list().contains(el)}" class="position-absolute"
                                   th:action="'/user/'+ ${el.book_id} + '/atu'" method="post">
@@ -68,7 +68,7 @@
                                 <a th:href="'/books/' + ${el.book_id}">
                                     <img th:src="@{~/book_covers/{id}(id=${el.book_id + '.png'})}"
                                          alt="image error"
-                                         width="500" height="300"
+                                         width="400" height="250"
                                          th:href="'/books/' + ${el.book_id}"
                                          class="card-img-top img-responsive">
                                 </a>
@@ -77,7 +77,7 @@
                         <div class="card-footer">
                             <a th:href="'/books/' + ${el.book_id}" class="text-decoration-none"
                                style="max-height: 100px">
-                                <h5 th:text="${el.name}" class="text-center text-dark"></h5>
+                                <h6 th:text="${el.name}" class="text-dark"></h6>
                             </a>
                             <h6 th:text="${el.author}" class="text-muted" style="max-height: 40px "></h6>
                         </div>

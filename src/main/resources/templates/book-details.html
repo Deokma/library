@@ -23,6 +23,15 @@
                         <div class=" col-lg-8 container position-relative">
                             <h4 th:text="${el.name}" class="text-start px-4 p-1 text-light fw-bold"></h4>
                             <h6 th:text="'Author: ' + ${el.author}" class="text-start px-4 text-light fw-norm"></h6>
+                            <h6 th:text="'Page Count: ' + ${el.pageCount} + ' ст.'" class="text-start px-4 text-light fw-norm"></h6>
+
+                            <!--<div class="p-2 px-1">
+                                <h6 class="text-start px-4 text-light fw-norm">Genres:</h6>
+                                <ul th:if="${el.genres != null}">
+                                    <li th:each="genre : ${el.genres}" th:text="${genre.name}" class="text-start px-4 text-light fw-norm"></li>
+                                </ul>
+                            </div>-->
+                            <!--todo список жанров-->
                             <div class="p-2 px-1">
                             <h5 th:text="'⭐' +${el.averageRating} + ' ('+${el.ratingCount}+')'" class="text-start px-4 text-light fw-norm"></h5>
                                 <form th:action="'/rate/' + ${el.book_id}" method="post" id="ratingForm">

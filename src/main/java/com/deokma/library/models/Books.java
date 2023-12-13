@@ -27,6 +27,8 @@ public class Books {
     private String name;
     @Column(length = 5000)
     private String description;
+    @NotEmpty(message = "Page Count should not be empty")
+    private Integer pageCount;
     private Float averageRating = 0.0f;
 
     private Integer issueYear;

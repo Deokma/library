@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -82,7 +83,6 @@ public class BooksController {
     public String booksAdd(Model model) {
 
 
-
         List<Genre> genres = genreService.getAllGenres(); // предполагается, что у вас есть метод для получения всех жанров из сервиса
 
         model.addAttribute("genres", genres);
@@ -106,6 +106,7 @@ public class BooksController {
     public String booksAddPost(@RequestParam String name,
                                @RequestParam String author,
                                @RequestParam Integer issueYear,
+                               @RequestParam Integer pageCount,
                                @RequestParam String description,
                                @RequestParam(value = "bookCover", required = false) MultipartFile bookCoverFile,
                                @RequestParam(value = "genres", required = false) List<Long> genreIds,
@@ -118,6 +119,7 @@ public class BooksController {
             book.setName(name);
             book.setAuthor(author);
             book.setIssueYear(issueYear);
+            book.setPageCount(pageCount);
             book.setDescription(description);
 
             if (genreIds != null) {
@@ -128,8 +130,8 @@ public class BooksController {
                 book.setGenres(selectedGenres);
             }
             model.addAttribute("genres", genreRepository.findAll());
-            booksRepository.save(book);
 
+            booksRepository.save(book);
             if (!bookCoverFile.isEmpty()) {
                 BooksCover booksCover = new BooksCover();
                 booksCover.setId(book.getBook_id());
@@ -152,6 +154,9 @@ public class BooksController {
 
                 booksCoverRepository.save(booksCover);
             }
+
+            model.addAttribute("genres", genreRepository.findAll());
+            model.addAttribute("el", new Books()); // Assuming you are using "el" as the model attribute for a single book
 
             model.addAttribute("message", "File uploaded successfully!");
         } catch (Exception e) {
@@ -188,11 +193,11 @@ public class BooksController {
     @GetMapping("/books/{book_id}")
     public String bookDetails(@PathVariable(value = "book_id") long book_id, Model model) {
         Optional<Books> book = booksRepository.findById(book_id);
-        ArrayList<Books> res = new ArrayList<>();
-        book.ifPresent(res::add);
-        model.addAttribute("book", res);
+        book.ifPresent(value -> model.addAttribute("book", value));
+        model.addAttribute("genres", genreRepository.findAll()); // Add this line to load genres
         return "book-details";
     }
+
 
     /**
      * Go to Edit Book Page
@@ -221,7 +226,7 @@ public class BooksController {
                              //BindingResult result,
                              @RequestParam("coverImageFile") MultipartFile coverImageFile,
                              //@RequestParam("pdfFile") MultipartFile pdfFile,
-                             /*@RequestParam("imageURL") String imageURL,*/
+            /*@RequestParam("imageURL") String imageURL,*/
                              @RequestParam(value = "genres", required = false) List<Long> genreIds,
                              RedirectAttributes redirectAttributes, Model model) throws IOException {
 
@@ -236,6 +241,7 @@ public class BooksController {
         existingBook.setName(book.getName());
         existingBook.setAuthor(book.getAuthor());
         existingBook.setIssueYear(book.getIssueYear());
+        existingBook.setPageCount(book.getPageCount());
         existingBook.setDescription(book.getDescription());
         if (genreIds != null) {
             Set<Genre> selectedGenres = genreIds.stream()
@@ -446,16 +452,23 @@ public class BooksController {
         }
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<List<Books>> getParetoOptimalBooks(@RequestParam Map<String, Object> criteria) {
+    @GetMapping("/multicriterial_search")
+    @Cacheable("searchResultCache")
+    public ResponseEntity<List<Books>> getParetoOptimalBooks(@RequestParam Map<String, Object> criteria, Model model) {
         List<Books> result = booksService.findParetoOptimalBooks(criteria);
+        model.addAttribute("books", result);
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("/search")
-    public String searchBooks(@RequestParam Map<String, Object> criteria, Model model) {
+    @PostMapping("/multicriterial_search")
+    public String multiCritetialSearchBooks(@RequestParam Map<String, Object> criteria, Model model,
+                                            HttpServletResponse response) {
         List<Books> result = booksService.findParetoOptimalBooks(criteria);
         model.addAttribute("books", result);
+
+        // Установка заголовков для кэширования
+        response.setHeader("Cache-Control", "public, max-age=3600"); // Настройте max-age по необходимости
+
         return "search"; // Replace with the actual name of your search template
     }
 
