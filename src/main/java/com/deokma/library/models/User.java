@@ -49,6 +49,8 @@ public class User implements UserDetails {
 
     //@OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     //private AvatarImage avatarImage;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<UserBooksRating> userBookRatings = new HashSet<>();
 
     public User(String username, String password, Set<Role> roles) {
         this.username = username;

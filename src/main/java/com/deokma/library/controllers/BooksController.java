@@ -1,22 +1,17 @@
 package com.deokma.library.controllers;
 
 import com.deokma.library.exceptions.CustomNotFoundException;
-import com.deokma.library.models.Books;
-import com.deokma.library.models.BooksCover;
-import com.deokma.library.models.BooksPDF;
-import com.deokma.library.models.User;
-import com.deokma.library.repo.BooksCoverRepository;
-import com.deokma.library.repo.BooksPdfRepository;
-import com.deokma.library.repo.BooksRepository;
-import com.deokma.library.repo.UserRepository;
-import com.deokma.library.services.BooksCoverService;
-import com.deokma.library.services.BooksPDFService;
-import com.deokma.library.services.UserService;
+import com.deokma.library.models.*;
+import com.deokma.library.repo.*;
+import com.deokma.library.services.*;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,15 +21,18 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author Denis Popolamov
@@ -43,23 +41,31 @@ import java.util.concurrent.TimeUnit;
 public class BooksController {
 
     private final BooksRepository booksRepository;
+    private final GenreRepository genreRepository;
     private final BooksCoverRepository booksCoverRepository;
     private final BooksCoverService booksCoverService;
     private final BooksPDFService bookPdfService;
     private final BooksPdfRepository booksPDFRepository;
+    private final BooksService booksService;
     //private final UserBooksRepository userBooksRepository;
     private final UserRepository userRepository;
     private final UserService userService;
+    private final GenreService genreService;
+    @Autowired
+    private UserBooksRatingRepository userBooksRatingRepository;
 
-    public BooksController(BooksRepository booksRepository, BooksCoverRepository booksCoverRepository, BooksCoverService booksCoverService, BooksPDFService bookPdfService, BooksPdfRepository booksPDFRepository, UserRepository userRepository, UserService userService) {
+    public BooksController(BooksRepository booksRepository, GenreRepository genreRepository, BooksCoverRepository booksCoverRepository, BooksCoverService booksCoverService, BooksPDFService bookPdfService, BooksPdfRepository booksPDFRepository, BooksService booksService, UserRepository userRepository, UserService userService, GenreService genreService) {
         this.booksRepository = booksRepository;
+        this.genreRepository = genreRepository;
         this.booksCoverRepository = booksCoverRepository;
         this.booksCoverService = booksCoverService;
         this.bookPdfService = bookPdfService;
         this.booksPDFRepository = booksPDFRepository;
+        this.booksService = booksService;
         //this.userBooksRepository = userBooksRepository;
         this.userRepository = userRepository;
         this.userService = userService;
+        this.genreService = genreService;
     }
 
 //    @RequestMapping(value = "/books", method = RequestMethod.GET)
@@ -74,7 +80,12 @@ public class BooksController {
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/books/add")
-    public String booksAdd() {
+    public String booksAdd(Model model) {
+
+
+        List<Genre> genres = genreService.getAllGenres(); // предполагается, что у вас есть метод для получения всех жанров из сервиса
+
+        model.addAttribute("genres", genres);
         return "books-add";
     }
 
@@ -94,25 +105,33 @@ public class BooksController {
     @PostMapping("/books/add")
     public String booksAddPost(@RequestParam String name,
                                @RequestParam String author,
+                               @RequestParam Integer issueYear,
+                               @RequestParam Integer pageCount,
                                @RequestParam String description,
-                               @RequestParam("book_file") MultipartFile file,
-                               @RequestParam("bookCover") MultipartFile bookCoverFile,
-                               @RequestParam("imageURL") String imageURL, Model model) {
+                               @RequestParam(value = "bookCover", required = false) MultipartFile bookCoverFile,
+                               @RequestParam(value = "genres", required = false) List<Long> genreIds,
+                               Model model) {
         Books book = new Books();
         try {
-            if (!file.getOriginalFilename().matches(".*\\.pdf$")) {
-                throw new Exception("Invalid file type. Only PDF files are allowed.");
-            }
             if (!bookCoverFile.getOriginalFilename().matches(".*\\.(png|jpg|jpeg)$")) {
                 throw new Exception("Invalid file type. Only PNG files are allowed.");
             }
             book.setName(name);
             book.setAuthor(author);
+            book.setIssueYear(issueYear);
+            book.setPageCount(pageCount);
             book.setDescription(description);
 
+            if (genreIds != null) {
+                Set<Genre> selectedGenres = genreIds.stream()
+                        .map(genreId -> genreRepository.findById(genreId).orElse(null))
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toSet());
+                book.setGenres(selectedGenres);
+            }
+            model.addAttribute("genres", genreRepository.findAll());
+
             booksRepository.save(book);
-
-
             if (!bookCoverFile.isEmpty()) {
                 BooksCover booksCover = new BooksCover();
                 booksCover.setId(book.getBook_id());
@@ -120,7 +139,6 @@ public class BooksController {
                 booksCover.setOriginalFileName(bookCoverFile.getOriginalFilename());
 
                 // Save the image file to the "resources/book_covers" directory
-                // String fileBookCoverName = StringUtils.cleanPath(bookCoverFile.getOriginalFilename());
                 File fileToSaveBookCover = new File(uploadBookCoversDirectory + book.getBook_id().toString() + ".png");
                 FileOutputStream fosBookCover = new FileOutputStream(fileToSaveBookCover);
                 fosBookCover.write(bookCoverFile.getBytes());
@@ -134,40 +152,21 @@ public class BooksController {
                 String fileContents = new String(Files.readAllBytes(fileToSaveBookCover.toPath()), StandardCharsets.UTF_8);
                 cache.put(book.getBook_id().toString(), fileContents);
 
-
                 booksCoverRepository.save(booksCover);
             }
-//            } else if (!imageURL.isEmpty()) {
-//                booksCover.setData(convert(imageURL));
-//            } else {
-//                booksCover.setData(convert("https://clck.ru/33LDY5"));
-//            }
 
+            model.addAttribute("genres", genreRepository.findAll());
+            model.addAttribute("el", new Books()); // Assuming you are using "el" as the model attribute for a single book
 
-            if (!bookCoverFile.isEmpty()) {
-                BooksPDF books_pdf = new BooksPDF();
-                books_pdf.setId(book.getBook_id());
-                books_pdf.setFileName(book.getBook_id().toString());
-                books_pdf.setOriginalFileName(file.getOriginalFilename());
-
-                // Save the PDF file to the "resources/books" directory
-                //String fileBookName = StringUtils.cleanPath(file.getOriginalFilename());
-                File fileToSaveBook = new File(uploadBookDirectory + book.getBook_id().toString() + ".pdf");
-                FileOutputStream fosBook = new FileOutputStream(fileToSaveBook);
-                fosBook.write(file.getBytes());
-                fosBook.close();
-
-                booksPDFRepository.save(books_pdf);
-            }
-
-            model.addAttribute("message", "File uploaded successfully! to ");
+            model.addAttribute("message", "File uploaded successfully!");
         } catch (Exception e) {
             model.addAttribute("message", "File upload failed! " + e.getMessage());
+            return "redirect:/books/add";
         }
-
 
         return "redirect:/";
     }
+
 
 //    /**
 //     * Converter link to file
@@ -194,11 +193,11 @@ public class BooksController {
     @GetMapping("/books/{book_id}")
     public String bookDetails(@PathVariable(value = "book_id") long book_id, Model model) {
         Optional<Books> book = booksRepository.findById(book_id);
-        ArrayList<Books> res = new ArrayList<>();
-        book.ifPresent(res::add);
-        model.addAttribute("book", res);
+        book.ifPresent(value -> model.addAttribute("book", value));
+        model.addAttribute("genres", genreRepository.findAll()); // Add this line to load genres
         return "book-details";
     }
+
 
     /**
      * Go to Edit Book Page
@@ -209,7 +208,13 @@ public class BooksController {
         Books book = booksRepository.findById(book_id)
                 .orElseThrow(() -> new CustomNotFoundException("Book not found with id " + book_id));
 
+        // Загрузите все жанры из базы данных
+        Iterable<Genre> genres = genreRepository.findAll();
+
+        // Передайте жанры в модель
+        model.addAttribute("genres", genres);
         model.addAttribute("book", book);
+
         return "book-edit";
     }
 
@@ -220,21 +225,32 @@ public class BooksController {
                              @ModelAttribute("book") @Validated Books book,
                              //BindingResult result,
                              @RequestParam("coverImageFile") MultipartFile coverImageFile,
-                             @RequestParam("pdfFile") MultipartFile pdfFile,
-                             @RequestParam("imageURL") String imageURL,
+                             //@RequestParam("pdfFile") MultipartFile pdfFile,
+            /*@RequestParam("imageURL") String imageURL,*/
+                             @RequestParam(value = "genres", required = false) List<Long> genreIds,
                              RedirectAttributes redirectAttributes, Model model) throws IOException {
+
         Books existingBook = booksRepository.findById(book_id)
                 .orElseThrow(() -> new CustomNotFoundException("Book not found with id " + book_id));
         BooksCover existCover = booksCoverRepository.findById(book_id)
                 .orElseThrow(() -> new CustomNotFoundException("Cover not found with id " + book_id));
-        BooksPDF existPDF = booksPDFRepository.findById(book_id)
-                .orElseThrow(() -> new CustomNotFoundException("Cover not found with id " + book_id));
+        //BooksPDF existPDF = booksPDFRepository.findById(book_id)
+        //        .orElseThrow(() -> new CustomNotFoundException("Cover not found with id " + book_id));
 
         // update book information from the form
         existingBook.setName(book.getName());
         existingBook.setAuthor(book.getAuthor());
+        existingBook.setIssueYear(book.getIssueYear());
+        existingBook.setPageCount(book.getPageCount());
         existingBook.setDescription(book.getDescription());
-
+        if (genreIds != null) {
+            Set<Genre> selectedGenres = genreIds.stream()
+                    .map(genreId -> genreRepository.findById(genreId).orElse(null))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+            existingBook.setGenres(selectedGenres);
+        }
+        model.addAttribute("genres", genreRepository.findAll());
         // update book cover image
         if (!coverImageFile.isEmpty()) {
             String coverImageFileName = StringUtils.cleanPath(coverImageFile.getOriginalFilename());
@@ -245,46 +261,51 @@ public class BooksController {
             }
 
             // Получаем полный путь до файла в директории
-            String fileBooksPath = Paths.get(uploadBookDirectory, existingBook.getBook_id().toString()).toString();
+         /*   String fileBooksPath = Paths.get(uploadBookDirectory, existingBook.getBook_id().toString()).toString();
             File oldBookFile = new File(fileBooksPath);
 
             // Удаляем старый файл
             if (oldBookFile.exists()) {
                 oldBookFile.delete();
-            }
+            }*/
 
-//            if (!coverImageFile.isEmpty()) {
-//                existCover.setData(coverImageFile.getBytes());
-//                existCover.setFileName(coverImageFile.getOriginalFilename());
-//            } else if (!imageURL.isEmpty()) {
-//                existCover.setData(convert(imageURL));
-//            } else {
-//                existCover.setData(convert("https://clck.ru/33LDY5"));
-//            }
+     /*   if (!coverImageFile.isEmpty()) {
+            existCover.setData(coverImageFile.getBytes());
+            existCover.setFileName(coverImageFile.getOriginalFilename());
+        } else if (!imageURL.isEmpty()) {
+            existCover.setData(convert(imageURL));
+        } else {
+            existCover.setData(convert("https://clck.ru/33LDY5"));
+        }
+        }*/
+        }
+        // Закомментирована секция, относящаяся к PDF-файлу
+    /*
+    if (!pdfFile.isEmpty()) {
+        String pdfFileName = existingBook.getBook_id().toString();
+        String pdfOriginalFileName = StringUtils.cleanPath(pdfFile.getOriginalFilename());
+
+        if (!pdfOriginalFileName.matches(".*\\.pdf$")) {
+            redirectAttributes.addFlashAttribute("error", "Invalid PDF file type. Only PDF files are allowed.");
+            return "redirect:/book-edit/" + book_id;
         }
 
         if (!pdfFile.isEmpty()) {
-            String pdfFileName = existingBook.getBook_id().toString();
-            String pdfOriginalFileName = StringUtils.cleanPath(pdfFile.getOriginalFilename());
-
-            if (!pdfOriginalFileName.matches(".*\\.pdf$")) {
-                redirectAttributes.addFlashAttribute("error", "Invalid PDF file type. Only PDF files are allowed.");
-                return "redirect:/book-edit/" + book_id;
-            }
-
-            if (!pdfFile.isEmpty()) {
-                //existPDF.setData(pdfFile.getBytes());
-                existPDF.setOriginalFileName(pdfFile.getOriginalFilename());
-                existPDF.setFileName(book.getBook_id().toString());
-            }
+            //existPDF.setData(pdfFile.getBytes());
+            existPDF.setOriginalFileName(pdfFile.getOriginalFilename());
+            existPDF.setFileName(book.getBook_id().toString());
         }
+    }
+    */
 
         booksRepository.save(existingBook);
         booksCoverRepository.save(existCover);
-        booksPDFRepository.save(existPDF);
+        // Закомментирована секция, относящаяся к PDF-файлу
+        //booksPDFRepository.save(existPDF);
 
         return "redirect:/books/{book_id}";
     }
+
 
     /**
      * Method for Delete Book
@@ -382,6 +403,74 @@ public class BooksController {
         }
     }
 
+
+    @PostMapping("/rate/{book_id}")
+    public String rateBook(@PathVariable(value = "book_id") long bookId,
+                           @RequestParam("rating") Float rating,
+                           Model model, Principal principal, HttpServletRequest request) {
+        User user = userService.getUserByPrincipal(principal);
+        Books book = booksRepository.findById(bookId).orElseThrow();
+
+        // Check if the user has already rated the book
+        Optional<UserBooksRating> existingRating = userBooksRatingRepository.findByUserAndBook(user, book);
+
+        if (existingRating.isPresent()) {
+            // If the user has already rated the book, update the existing rating
+            UserBooksRating userRating = existingRating.get();
+            userRating.setRating(rating);
+            userBooksRatingRepository.save(userRating);
+        } else {
+            // If the user has not rated the book, create a new rating entry
+            UserBooksRating newRating = new UserBooksRating();
+            newRating.setUser(user);
+            newRating.setBook(book);
+            newRating.setRating(rating);
+            userBooksRatingRepository.save(newRating);
+        }
+
+        // Update the average rating for the book
+        updateAverageRating(book);
+
+        // Redirect back to the book details page
+        return "redirect:/books/" + bookId;
+    }
+
+    // Method to update the average rating for a book
+    private void updateAverageRating(Books book) {
+        List<UserBooksRating> ratings = userBooksRatingRepository.findByBook(book);
+        int totalRatings = ratings.size();
+        if (!ratings.isEmpty()) {
+            // Calculate the new average rating
+            float sumOfRatings = (float) ratings.stream().mapToDouble(UserBooksRating::getRating).sum();
+            float averageRating = (float) (sumOfRatings / ratings.size());
+
+            // Update the book's averageRating property
+            book.setAverageRating(averageRating);
+            book.setRatingCount(totalRatings);
+            // Save the updated book entity
+            booksRepository.save(book);
+        }
+    }
+
+    @GetMapping("/multicriterial_search")
+    @Cacheable("searchResultCache")
+    public ResponseEntity<List<Books>> getParetoOptimalBooks(@RequestParam Map<String, Object> criteria, Model model) {
+        List<Books> result = booksService.findParetoOptimalBooks(criteria);
+        model.addAttribute("books", result);
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/multicriterial_search")
+    public String multiCritetialSearchBooks(@RequestParam Map<String, Object> criteria, Model model,
+                                            HttpServletResponse response) {
+        List<Books> result = booksService.findParetoOptimalBooks(criteria);
+        model.addAttribute("books", result);
+
+        // Установка заголовков для кэширования
+        response.setHeader("Cache-Control", "public, max-age=3600"); // Настройте max-age по необходимости
+
+        return "search"; // Replace with the actual name of your search template
+    }
 
     @GetMapping("/read/{id}")
     public void readPdfFile(@PathVariable Long id, HttpServletResponse response) {

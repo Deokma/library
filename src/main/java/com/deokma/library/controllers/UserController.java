@@ -23,7 +23,7 @@ public class UserController {
     private final UserRepository userRepository;
 //    @Autowired
 //    private final AvatarImageRepository avatarRepository;
-   // private final AvatarImageService avatarService;
+    // private final AvatarImageService avatarService;
 
     /**
      * Go to registration page
